@@ -4,9 +4,9 @@ from connection import Connection
 
 class Map():
 
-    def __init__(self, configuration: dict[str, object]):
+    def __init__(self, configuration):
         self.configuration : dict[str, object] = configuration
-        self.nb_drones : int = configuration["nb_drones"]
+        self.nb_drones = configuration["nb_drones"]
         self.hubs : dict[str, Hub] = {}
         self.connections : list[Connection] = []
         self.create_hubs(configuration["hubs"])
@@ -42,8 +42,7 @@ class Map():
     def get_start_hub(self) -> Hub | None:
         for hub in self.hubs.values():
             if hub.is_start():
-                return hub
-            
+                return hub    
 
 
     def get_end_hub(self) -> Hub | None:

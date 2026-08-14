@@ -1,5 +1,7 @@
 from parser import parser, EmptyFile, InvalidConfiguration
 import sys
+from simulation import Simulation
+from map import Map
 
 
 def main() -> None:
@@ -12,6 +14,8 @@ def main() -> None:
         try:
             configuration = parser(file_path)
             print(configuration)
+            map = Map(configuration)
+            simulation = Simulation(map)
         except EmptyFile as e:
             print(e)
         except FileNotFoundError as e:

@@ -1,16 +1,19 @@
+from hub import Hub
+
+
 class Drone():
 
-    def __init__(self, drone_id: int):
+    def __init__(self, drone_id: int, start_hub: Hub | None):
         self.id = drone_id
-        self.current_hub = None
+        self.current_hub: Hub | None = start_hub
         self.finished = False
 
 
-    def set_hub(self, hub) -> None:
+    def set_hub(self, hub: Hub) -> None:
         self.current_hub = hub
 
 
-    def get_hub(self):
+    def get_hub(self) -> Hub | None:
         return self.current_hub
 
 

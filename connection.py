@@ -12,7 +12,7 @@ class Connection():
         self.destination = destination
         self.max_link_capacity = max_link_capacity
 
-    
+
     def get_source(self) -> "Hub":
         return self.source
 
@@ -21,8 +21,18 @@ class Connection():
         return self.destination
 
 
+    def get_other_hub(self, hub: "Hub") -> "Hub | None":
+        if hub == self.source:
+            return self.destination
+        elif hub == self.destination:
+            return self.source
+        else:
+            return None
+
+
     def get_max_link_capacity(self) -> int:
         return self.max_link_capacity
+
 
     def __str__(self) -> str:
         return f"Connection {self.source.name} -> {self.destination.name} - capacity: {self.max_link_capacity}"
