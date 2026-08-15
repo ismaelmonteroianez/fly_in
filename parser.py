@@ -28,13 +28,15 @@ def check_integer(value: str, index: int) -> None:
     try:
         int(value)
     except ValueError:
-        raise InvalidConfiguration(f"Line {index}: Coordinates must be integers")
+        raise InvalidConfiguration(f"Line {index}: Coordinates"
+                                   " must be integers")
 
 
 def check_hub_name(hub_name: str, index: int) -> None:
     for character in hub_name:
         if character == "-":
-            raise InvalidConfiguration(f"Line {index}: Hub names cannot contain '-'")
+            raise InvalidConfiguration(f"Line {index}: Hub"
+                                       " names cannot contain '-'")
 
 
 def parser_number_drones(index, drone_parts: list[str]) -> int:
@@ -56,9 +58,11 @@ def split_metadata(line: str, index: int) -> tuple[str, str | None]:
         main_part, metadata_part = line.split("[")
         metadata_content, extra_trash = metadata_part.split("]")
         if metadata_content.strip() == "":
-            raise InvalidConfiguration(f"Line {index}: Invalid metadata format")
+            raise InvalidConfiguration(f"Line {index}: Invalid"
+                                       " metadata format")
         if extra_trash.strip() != "":
-            raise InvalidConfiguration(f"Line {index}: Invalid metadata format")
+            raise InvalidConfiguration(f"Line {index}: Invalid"
+                                       " metadata format")
         metadata_part = metadata_content
     else:
         main_part = line
@@ -70,24 +74,30 @@ def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
     metadata_parts = metadata.split()
     duplicate_list_keys = []
     metadata_data = {
-                    "zone" : "normal",
-                    "color" : "none",
-                    "max_drones" : 1
+                    "zone": "normal",
+                    "color": "none",
+                    "max_drones": 1
                     }
     for part in metadata_parts:
         if part.count("=") != 1:
-            raise InvalidConfiguration(f"Line {index}: Number of '=' in metadata must be 1 for each element")
+            raise InvalidConfiguration(f"Line {index}: Number of '=' in"
+                                       " metadata must be 1 for each element")
         parts = part.split("=")
         key, value = parts
         if key == "" or value == "":
-            raise InvalidConfiguration(f"Line {index}: Metadata element must be key=value only")
+            raise InvalidConfiguration(f"Line {index}: Metadata"
+                                       " element must be key=value only")
         if key in duplicate_list_keys:
-            raise InvalidConfiguration(f"Line {index}: duplicated metadata key")
+            raise InvalidConfiguration(f"Line {index}: "
+                                       "duplicated metadata key")
         else:
             duplicate_list_keys.append(key)
         if key == "zone":
             if value not in ["normal", "blocked", "restricted", "priority"]:
-                raise InvalidConfiguration(f"Line {index}: Zone information must be normal, blocked, restricted or priority only")
+                raise InvalidConfiguration(f"Line {index}: "
+                                           "Zone information must be normal, "
+                                           "blocked, restricted "
+                                           "or priority only")
             metadata_data["zone"] = value
         elif key == "color":
             metadata_data["color"] = value
@@ -95,7 +105,8 @@ def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
             check_positive_int(value)
             metadata_data["max_drones"] = int(value)
         else:
-            raise InvalidConfiguration(f"Line {index}: Metadata key must be zone, color or max_drones")
+            raise InvalidConfiguration(f"Line {index}: Metadata key "
+                                       "must be zone, color or max_drones")
     return metadata_data
 
 
@@ -134,20 +145,28 @@ def parse_connection_metadata(metadata: str, index: int) -> int:
     duplicate_list_keys = []
     for metadata_part in metadata_parts:
         if metadata_part.count("=") != 1:
-            raise InvalidConfiguration(f"Line {index}: Number of '=' in metadata must be 1 for each element")
+            raise InvalidConfiguration(f"Line {index}: Number of "
+                                       "'=' in metadata must "
+                                       "be 1 for each element")
         parts = metadata_part.split("=")
         key, value = parts
         if key == "" or value == "":
-            raise InvalidConfiguration(f"Line {index}: Metadata element must be key=value only")
+            raise InvalidConfiguration(f"Line {index}: "
+                                       "Metadata element "
+                                       "must be key=value only")
         if key in duplicate_list_keys:
-            raise InvalidConfiguration(f"Line {index}: duplicated metadata key")
+            raise InvalidConfiguration(f"Line {index}: "
+                                       "duplicated metadata key")
         else:
             duplicate_list_keys.append(key)
         if key == "max_link_capacity":
             check_positive_int(value)
             max_link_capacity = int(value)
         else:
-            raise InvalidConfiguration(f"Line {index}: Metadata key for connections must be max_link_capacity")
+            raise InvalidConfiguration(f"Line {index}: "
+                                       "Metadata key for "
+                                       "connections must be "
+                                       "max_link_capacity")
     return max_link_capacity
 
 
@@ -166,13 +185,14 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
     if zone1 == "" or zone2 == "":
         raise InvalidConfiguration(f"Line {index}: Invalid connection format")
     if zone1 == zone2:
-        raise InvalidConfiguration(f"Line {index}: Connection cannot link a zone to itself")
+        raise InvalidConfiguration(f"Line {index}: "
+                                   "Connection cannot link a zone to itself")
     if metadata_part is not None:
         max_link_capacity = parse_connection_metadata(metadata_part, index)
     connection_data = {
-        "zone1" : zone1,
-        "zone2" : zone2,
-        "max_link_capacity" : max_link_capacity
+        "zone1": zone1,
+        "zone2": zone2,
+        "max_link_capacity": max_link_capacity
     }
     return connection_data
 
@@ -186,21 +206,24 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]) -> tuple[dict, li
         if line.startswith("start_hub:"):
             hub_data = parse_hub(line, index)
             if hub_data["name"] in hubs:
-                raise InvalidConfiguration(f"Line {index}: Duplicated hub name")
+                raise InvalidConfiguration(f"Line {index}: "
+                                           "Duplicated hub name")
             hub_data["type"] = "start"
             hubs[hub_data["name"]] = hub_data
             start_hub_count += 1
         elif line.startswith("end_hub:"):
             hub_data = parse_hub(line, index)
             if hub_data["name"] in hubs:
-                raise InvalidConfiguration(f"Line {index}: Duplicated hub name")
+                raise InvalidConfiguration(f"Line {index}: "
+                                           "Duplicated hub name")
             hub_data["type"] = "end"
             hubs[hub_data["name"]] = hub_data
             end_hub_count += 1
         elif line.startswith("hub:"):
             hub_data = parse_hub(line, index)
             if hub_data["name"] in hubs:
-                raise InvalidConfiguration(f"Line {index}: Duplicated hub name")
+                raise InvalidConfiguration(f"Line {index}: "
+                                           "Duplicated hub name")
             hub_data["type"] = "hub"
             hubs[hub_data["name"]] = hub_data
         elif line.startswith("connection:"):
@@ -208,14 +231,19 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]) -> tuple[dict, li
             if connection_data["zone1"] not in hubs or connection_data["zone2"] not in hubs:
                 raise InvalidConfiguration(f"Line {index}: Conexion declared before zone in file")
             for connection in connections:
-                if ((connection["zone1"] == connection_data["zone1"] and connection["zone2"] == connection_data["zone2"]) or 
+                if ((connection["zone1"] == connection_data["zone1"] and connection["zone2"] == connection_data["zone2"]) or
                     (connection["zone2"] == connection_data["zone1"] and connection["zone1"] == connection_data["zone2"])):
                     raise InvalidConfiguration(f"Line {index}: Duplicated connection")
             connections.append(connection_data)
         else:
-            raise InvalidConfiguration(f"Line {index}: Invalid line format: expected start_hub, end_hub, hub or connection")
+            raise InvalidConfiguration(f"Line {index}: "
+                                       "Invalid line format: "
+                                       "expected start_hub, "
+                                       "end_hub, hub or connection")
     if start_hub_count != 1 or end_hub_count != 1:
-        raise InvalidConfiguration("Configuration must contain exactly one start_hub and one end_hub")
+        raise InvalidConfiguration("Configuration must contain "
+                                   "exactly one start_hub "
+                                   "and one end_hub")
     return hubs, connections
 
 
@@ -234,12 +262,14 @@ def parser(file_path: str) -> dict[str, object]:
     if content_list == []:
         raise InvalidConfiguration("Error: file contains only comments")
     if not content_list[0][1].startswith("nb_drones:"):
-         raise InvalidConfiguration("Error: line number of drones(nb_drones) not found or out of place")
+        raise InvalidConfiguration("Error: line number of "
+                                   "drones(nb_drones) not "
+                                   "found or out of place")
     else:
-         drone_parameters = content_list[0][1].split(":")
-         nbr_drones = parser_number_drones(content_list[0][0], drone_parameters)
-         if nbr_drones > 50:
-             raise InvalidConfiguration("Number of drones must at most 50")
+        drone_parameters = content_list[0][1].split(":")
+        nbr_drones = parser_number_drones(content_list[0][0], drone_parameters)
+        if nbr_drones > 50:
+            raise InvalidConfiguration("Number of drones must at most 50")
     hubs, connections = parse_remaining_lines(content_list)
     configuration = {
                     "nb_drones": nbr_drones,
