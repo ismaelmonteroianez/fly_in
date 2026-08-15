@@ -268,8 +268,6 @@ def parser(file_path: str) -> dict[str, object]:
     else:
         drone_parameters = content_list[0][1].split(":")
         nbr_drones = parser_number_drones(content_list[0][0], drone_parameters)
-        if nbr_drones > 50:
-            raise InvalidConfiguration("Number of drones must at most 50")
     hubs, connections = parse_remaining_lines(content_list)
     configuration = {
                     "nb_drones": nbr_drones,
