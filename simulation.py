@@ -57,24 +57,52 @@ class Simulation():
             moves = []
             turns += 1
             connection_occupancy = {}
+            hub_moves = {}
+            print(
+            "POSICIONES:",
+            {drone.id: positions[drone.id] for drone in self.drones}
+            )
+            print(
+            "PATHS:",
+            [
+            [hub.name for hub in path]
+            for path in paths_assigned
+            ]
+            )
             for drone in self.drones:
                 current_hub: Hub = paths_assigned[drone.id - 1][positions[drone.id]]
                 if positions[drone.id] == len(paths_assigned[drone.id - 1]) - 1:
-                    if not finished_drones[drone.id]:
-                        finished_drones[drone.id] = True
-                        finished_count +=1
-                    continue
+                    if finished_drones[drone.id]:
+                        continue
                 next_hub = paths_assigned[drone.id - 1][positions[drone.id] + 1]
                 connection = current_hub.get_connection_to(next_hub)
                 hub_drones = hub_occupancy.get(next_hub, 0)
                 connection_drones = connection_occupancy.get(connection, 0)
+                hub_drones -= self.count_moves_from_hub(moves, next_hub, paths_assigned, positions)
+                hub_drones += hub_moves.get(next_hub, 0)
+                print(
+                    "Dron:", drone.id,
+                    "destino:", next_hub.name,
+                    "máx:", next_hub.max_drones,
+                    "ocupación:", hub_occupancy.get(next_hub, 0),
+                    "salidas:", self.count_moves_from_hub(
+                    moves, next_hub, paths_assigned, positions
+                    ),
+                    "entradas:", hub_moves.get(next_hub, 0),
+                    "total:", hub_drones
+                    )
                 if self.can_enter_hub(next_hub, hub_drones) and self.can_enter_connection(connection, connection_drones):
                     moves.append(drone)
                     connection_occupancy[connection] = connection_occupancy.get(connection, 0) + 1
+                    hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
+            print("Turno:", turns, "Movimientos:", [drone.id for drone in moves])
             for drone in moves:
                 current_hub = paths_assigned[drone.id - 1][positions[drone.id]]
                 next_hub = paths_assigned[drone.id - 1][positions[drone.id] + 1]
                 positions[drone.id] += 1
+                if positions[drone.id] == len(paths_assigned[drone.id - 1]) - 1:
+                    finished_drones[drone.id] = True
+                    finished_count += 1
                 hub_occupancy[current_hub] -= 1
                 hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1
         return turns
@@ -82,8 +110,11 @@ class Simulation():
 
     def assign_paths(self):
         paths_assigned = []
-        for drone in self.drones:
-            paths_assigned.append(self.paths[0])
+        paths_assigned.append(self.paths[0])
+        paths_assigned.append(self.paths[0])
+        paths_assigned.append(self.paths[0])
+        paths_assigned.append(self.paths[0])
+        paths_assigned.append(self.paths[0])
         return paths_assigned
 
     def assign_drones(self):

@@ -18,6 +18,7 @@ def main() -> None:
             pathfinding = Pathfinding(map)
             previous, costs = pathfinding.find_path()
             paths = pathfinding.build_paths(previous)
+            paths = pathfinding.reverse_paths(paths)
             alternative_paths = pathfinding.build_alternative_paths(costs[map.get_end_hub().name])
             simulation = Simulation(map, paths, alternative_paths)
             turns = simulation.calculate_turns(simulation.paths_assigned)
