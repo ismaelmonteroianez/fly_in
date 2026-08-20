@@ -1,0 +1,27 @@
+nb_drones: 1
+start_hub: start 0 0
+hub: A 1 0
+hub: B 2 0
+end_hub: end 3 0
+connection: start-A
+connection: A-B
+connection: B-end
+
+
+    def build_alternative_paths(self, previous, costs):
+        alternative_paths = []
+        minimum_cost = costs[self.map.get_end_hub().name]
+        pending = []
+        current = self.map.get_end_hub()
+        pending.append(([current], 0))
+        while pending:
+            path, current_cost = pending.pop()
+            if path[-1] == self.map.get_start_hub():
+                if current_cost <= minimum_cost + 2:
+                    alternative_paths.append(path)
+                continue
+            current = path[-1]
+            neighbours = current.get_accessible_hubs()
+            for neighbour in neighbours:
+                if neighbour in path:
+                    continue

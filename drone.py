@@ -1,5 +1,5 @@
 from hub import Hub
-
+from connection import Connection
 
 class Drone():
 
@@ -7,6 +7,9 @@ class Drone():
         self.id = drone_id
         self.current_hub: Hub | None = start_hub
         self.finished = False
+        self.path = []
+        self.path_index = 0
+        self.connection: Connection | None = None
 
     def set_hub(self, hub: Hub) -> None:
         self.current_hub = hub
@@ -19,6 +22,10 @@ class Drone():
 
     def finish(self) -> None:
         self.finished = True
+
+    def set_path(self, path):
+        self.path = path
+        self.path_index = 0
 
     def __str__(self):
         if self.current_hub is None:

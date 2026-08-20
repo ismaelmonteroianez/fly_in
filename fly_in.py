@@ -2,7 +2,7 @@ from parser import parser, EmptyFile, InvalidConfiguration
 import sys
 from simulation import Simulation
 from map import Map
-
+from pathfinding import Pathfinding
 
 def main() -> None:
     if len(sys.argv) == 2:
@@ -15,7 +15,16 @@ def main() -> None:
             configuration = parser(file_path)
             print(configuration)
             map = Map(configuration)
-            simulation = Simulation(map)
+            pathfinding = Pathfinding(map)
+            previous, costs = pathfinding.find_path()
+            paths = pathfinding.build_paths(previous)
+            alternative_paths = pathfinding.build_alternative_paths(costs[map.get_end_hub().name])
+            simulation = Simulation(map, paths, alternative_paths)
+            turns = simulation.calculate_turns(simulation.paths_assigned)
+            print()
+            print("Paths:", paths)
+            print("Turns:", turns)
+
         except EmptyFile as e:
             print(e)
         except FileNotFoundError as e:
