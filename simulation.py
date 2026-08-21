@@ -5,12 +5,13 @@ from connection import Connection
 
 class Simulation():
 
-    def __init__(self, map: Map, paths, alternative_paths) -> None:
+    def __init__(self, map: Map, paths, alternative_paths, minimum_cost) -> None:
         self.map = map
         self.current_turn = 1
         self.drones: list[Drone] = []
         self.paths = paths
         self.alternative_paths = alternative_paths
+        self.minimum_cost = minimum_cost
         self.assign_drones()
         self.paths_assigned = self.assign_paths()
 
@@ -107,14 +108,34 @@ class Simulation():
                 hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1
         return turns
 
-
     def assign_paths(self):
         paths_assigned = []
-        paths_assigned.append(self.paths[0])
-        paths_assigned.append(self.paths[0])
-        paths_assigned.append(self.paths[0])
-        paths_assigned.append(self.paths[0])
-        paths_assigned.append(self.paths[0])
+        if not self.paths:
+            return []
+        number_of_paths = len(self.paths)
+        number_of_drones = len(self.drones)
+        path_plus_one = None
+        for path, cost in self.alternative_paths:
+            if cost == self.minimum_cost + 1:
+                path_plus_one = path
+                break
+        print("\n")
+        print(
+            "PATH +1:",
+            [hub.name for hub in path_plus_one]
+            if path_plus_one else None
+        )
+        for drone_index in range(number_of_drones):
+            path = self.paths[drone_index % number_of_paths]
+            paths_assigned.append(path)
+
+        turns = self.calculate_turns(paths_assigned)
+        print("\n")
+        print("Asignación:", [
+            [hub.name for hub in path]
+            for path in paths_assigned
+            ])
+        print("Turns:", turns)
         return paths_assigned
 
     def assign_drones(self):
