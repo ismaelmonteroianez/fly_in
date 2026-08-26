@@ -14,6 +14,13 @@ class Pathfinding():
             paths.append(path)
         return paths
 
+    def count_priority_hubs(self, path: list[Hub]) -> int:
+        priority_count = 0
+        for hub in path:
+            if hub.zone_type == "priority":
+                priority_count += 1
+        return priority_count
+
     def build_alternative_paths(self, minimum_cost):
         alternative_paths = []
         pending = []

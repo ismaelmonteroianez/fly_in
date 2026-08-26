@@ -1,0 +1,78 @@
+CHECKLIST DE PRUEBAS IMPORTANTES
+================================
+
+1. CASO BÁSICO
+--------------
+[ ] 1 dron con un camino normal.
+    → Comprueba el funcionamiento básico de principio a fin.
+
+
+2. VARIOS DRONES + CAPACIDADES
+------------------------------
+[ ] Varios drones compartiendo un único camino con capacidad = 1.
+    → Comprueba hubs, conexiones y espera entre drones.
+
+
+3. RESTRICTED
+-------------
+[ ] Varios drones atravesando un hub restricted con capacidad = 1.
+    → Comprueba transit y que los drones no ocupan el restricted
+      como un hub normal.
+
+
+4. VARIOS RESTRICTED
+--------------------
+[ ] Camino con 2 o más hubs restricted consecutivos.
+    → Comprueba que transit funciona correctamente durante varios
+      pasos consecutivos.
+
+
+5. CAMINO MÍNIMO + CAMINO +1
+----------------------------
+[ ] Mapa con un camino mínimo y otro de coste +1.
+    → Comprueba alternative_paths y la primera distribución alternativa.
+
+
+6. OPTIMIZACIÓN DE TURNOS
+-------------------------
+[ ] Mapa donde el camino mínimo tiene menos coste pero produce
+    más turnos que una alternativa +1.
+    → Comprueba que assign_paths optimiza TURNOS y no COSTE.
+
+
+7. VARIAS DISTRIBUCIONES
+------------------------
+[ ] Varios drones + camino mínimo + al menos un camino +1.
+    → Comprobar que se prueban diferentes combinaciones de caminos
+      y se escoge la mejor.
+
+
+8. PRIORITY
+-----------
+[ ] Mapa sencillo con priority y varios drones.
+    → Comprueba que la prioridad se respeta correctamente.
+
+
+9. PRIORITY + RESTRICTED
+------------------------
+[ ] Mapa pequeño que combine priority y restricted.
+    → Comprueba que ambas reglas funcionan juntas.
+
+
+10. CAMINOS COMPARTIDOS VS INDEPENDIENTES
+-----------------------------------------
+[ ] Mapa con dos caminos que compartan parte del recorrido y después
+    se separen.
+    → Comprueba conflictos de hubs/conexiones y asignación de caminos.
+
+11. SIMULACIÓN SIN EFECTOS SECUNDARIOS
+--------------------------------------
+[ ] Ejecutar calculate_turns() y comprobar que drones, hubs y conexiones
+    reales mantienen exactamente su estado original.
+
+
+12. REGRESIÓN
+------------
+[ ] Volver a ejecutar los mapas de prueba anteriores después de terminar
+    cada bloque importante.
+    → Especialmente después de assign_paths, priority y movimiento real.
