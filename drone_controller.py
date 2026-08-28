@@ -53,8 +53,14 @@ class DroneController:
                 count += 1
         return count
 
-    def process_transit_drones(self) -> set[int]:
+    def get_move_output(self, drone: Drone, next_hub: Hub, connection: Connection) -> str:
+        if next_hub.zone_type == "restricted":
+            return f"D{drone.id}-{connection.source.name}-{connection.destination.name}"
+        return f"D{drone.id}-{next_hub.name}"
+
+    def process_transit_drones(self) -> tuple[set[int], list[str]]:
         arrived_drones = set()
+        output_moves: list[str] = []
         for drone in self.simulation.drones:
             if drone.connection is None:
                 continue
@@ -65,10 +71,34 @@ class DroneController:
             if next_hub.is_end():
                 drone.finish()
             arrived_drones.add(drone.id)
-        return arrived_drones
+            output_moves.append(f"D{drone.id}-{next_hub.name}")
+        return arrived_drones, output_moves
+
+    def register_move(self, drone: Drone, next_hub: Hub,
+    connection: Connection, moves: list[Drone], hub_moves: dict[Hub, int],
+    connection_occupancy: dict[Connection, int]) -> None:
+        moves.append(drone)
+        connection_occupancy[connection] = (connection_occupancy.get(connection, 0) + 1)
+        if next_hub.zone_type == "restricted":
+            drone.connection = connection
+        else:
+            hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
+
+    def execute_moves(self, moves: list[Drone]) -> None:
+        for drone in moves:
+            current_hub = drone.get_hub()
+            next_hub = drone.path[drone.path_index + 1]
+            if current_hub is None:
+                continue
+            if next_hub.zone_type == "restricted":
+                continue
+            drone.set_hub(next_hub)
+            drone.path_index += 1
+            if next_hub.is_end():
+                drone.finish()
 
     def process_turn(self) -> None:
-        arrived_drones = self.process_transit_drones()
+        arrived_drones, output_moves = self.process_transit_drones()
         moves: list[Drone] = []
         hub_moves: dict[Hub, int] = {}
         connection_occupancy: dict[Connection, int] = {}
@@ -78,11 +108,13 @@ class DroneController:
             current_hub = drone.get_hub()
             if current_hub is None:
                 continue
+            if drone.is_finished(): 
+                continue
             next_hub = drone.path[drone.path_index + 1]
             connection = current_hub.get_connection_to(next_hub)
             if connection is None:
                 continue
-            hub_drones = self.count_hub_drones(next_hub)
+            hub_drones = self.simulation.count_hub_drones(next_hub)
             connection_drones = connection_occupancy.get(connection, 0)
             hub_drones -= self.count_moves_from_hub(moves, next_hub)
             hub_drones += hub_moves.get(next_hub, 0)
@@ -90,9 +122,15 @@ class DroneController:
                 can_move = self.can_enter_connection(connection, connection_drones)
             else:
                 can_move = (self.can_enter_hub(next_hub, hub_drones) and self.can_enter_connection( connection, connection_drones))
-
+            if can_move: 
+                self.register_move(drone, next_hub,connection, moves, hub_moves, connection_occupancy)
+                output_moves.append(self.get_move_output(drone, next_hub, connection))
+        self.execute_moves(moves)
+        print(" ".join(output_moves))
 
     def run(self) -> None:
+        print("REAL OUTPUT:")
+        print()
         while not self.all_drones_finished():
             self.process_turn()
             self.current_turn += 1

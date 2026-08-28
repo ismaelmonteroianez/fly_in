@@ -39,7 +39,8 @@ class Simulation():
         #positions[drone_id]     → índice
         #assignment[drone_id-1]  → camino
         #assignment[drone_id-1][positions[drone_id]] → hub actual
-
+        print("SIMULATION OUTPUT:")
+        print()
         positions = {}
         finished_drones = {}
         hub_occupancy = {}
@@ -132,7 +133,7 @@ class Simulation():
                         hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
                         output_moves.append(f"D{drone.id}-{next_hub.name}") #eliminar luego !!!
             #print("Turno:", turns, "Movimientos:", [drone.id for drone in moves])
-            #print(" ".join(output_moves))
+            print(" ".join(output_moves))
             for drone in moves:
                 current_hub = paths_assigned[drone.id - 1][positions[drone.id]]
                 next_hub = paths_assigned[drone.id - 1][positions[drone.id] + 1]
@@ -196,25 +197,25 @@ class Simulation():
             available_paths = self.paths + paths_plus_two
             plus_two_distribution = self.build_distribution(available_paths)
             turns_plus_two = self.calculate_turns(plus_two_distribution)
-        #print("\n")
-        #print("Distribución mínima:")
-        #print([[hub.name for hub in path] for path in minimum_distribution])
-        #print("Turns:", turns_minimum)
-        #print("\n")
-        #if plus_one_distribution is not None:
-        #    print("Distribución mínima + caminos +1:")
-        #    print([[hub.name for hub in path]for path in plus_one_distribution])
-        #    print("Turns:", turns_plus_one)
-        #if plus_one_two_distribution is not None:
-        #    print("\n")
-        #    print("Distribución mínima + 2 caminos +1:")
-        #    print([[hub.name for hub in path] for path in plus_one_two_distribution])
-        #    print("Turns:", turns_plus_one_two)
-        #if plus_two_distribution is not None:
-        #    print("\n")
-        #    print("Distribución mínima + caminos +2:")
-        #    print([[hub.name for hub in path] for path in plus_two_distribution])
-        #    print("Turns:", turns_plus_two)
+        print("\n")
+        print("Distribución mínima:")
+        print([[hub.name for hub in path] for path in minimum_distribution])
+        print("Turns:", turns_minimum)
+        print("\n")
+        if plus_one_distribution is not None:
+            print("Distribución mínima + caminos +1:")
+            print([[hub.name for hub in path]for path in plus_one_distribution])
+            print("Turns:", turns_plus_one)
+        if plus_one_two_distribution is not None:
+            print("\n")
+            print("Distribución mínima + 2 caminos +1:")
+            print([[hub.name for hub in path] for path in plus_one_two_distribution])
+            print("Turns:", turns_plus_one_two)
+        if plus_two_distribution is not None:
+            print("\n")
+            print("Distribución mínima + caminos +2:")
+            print([[hub.name for hub in path] for path in plus_two_distribution])
+            print("Turns:", turns_plus_two)
         distributions = [(minimum_distribution, turns_minimum)]
         if plus_one_distribution is not None:
             distributions.append((plus_one_distribution, turns_plus_one))
