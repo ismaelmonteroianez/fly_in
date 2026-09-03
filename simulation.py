@@ -4,8 +4,24 @@ from hub import Hub
 from connection import Connection
 
 class Simulation():
-
+    """
+    Simulate and evaluate drone path distributions.
+    This class evaluates different distributions of paths by simulating
+    drone movements turn by turn and calculating the total number of
+    turns required to deliver all drones. The distribution with the
+    lowest number of turns is selected for the actual simulation.
+    """
     def __init__(self, map: Map, paths, alternative_paths, minimum_cost) -> None:
+        """
+        Initialize the simulation and prepare the drone distribution.
+        Args:
+            map: Map containing the hubs and connections of the network.
+            paths: Minimum-cost paths found by the pathfinding algorithm.
+            alternative_paths: Paths with a cost slightly higher than
+                the minimum cost.
+            minimum_cost: Minimum movement cost between the start and
+                end hubs.
+        """
         self.map = map
         self.current_turn = 1
         self.drones: list[Drone] = []
@@ -16,11 +32,31 @@ class Simulation():
         self.paths_assigned = self.assign_paths()
 
     def can_enter_connection(self, connection: Connection, connection_occupancy: int) -> bool:
+        """
+        Check whether a drone can enter a connection.
+        Args:
+            connection: Connection the drone wants to enter.
+            connection_occupancy: Number of drones currently using the
+                connection.
+        Returns:
+            True if the connection has available capacity, otherwise
+            False.
+        """
         if connection.get_max_link_capacity() > connection_occupancy:
             return True
         return False
 
     def can_enter_hub(self, hub: Hub, hub_occupancy: int) -> bool:
+        """
+        Check whether a drone can enter a hub.
+        Start and end hubs have unlimited capacity. Other hubs can only
+        accept a drone when their maximum capacity is not exceeded.
+        Args:
+            hub: Hub the drone wants to enter.
+            hub_occupancy: Number of drones currently occupying the hub.
+        Returns:
+            True if the drone can enter the hub, otherwise False.
+        """
         if hub.is_start() or hub.is_end():
             return True
         if hub.max_drones > hub_occupancy:
@@ -28,6 +64,18 @@ class Simulation():
         return False
 
     def count_moves_from_hub(self, moves, hub, paths_assigned, positions):
+        """
+        Count drones that are moving out of a specific hub.
+        This is used to account for capacity that becomes available when
+        drones leave a hub during the current turn.
+        Args:
+            moves: Drones scheduled to move during the current turn.
+            hub: Hub whose outgoing movements are being counted.
+            paths_assigned: Path assigned to each drone.
+            positions: Current position index of each drone on its path.
+        Returns:
+            Number of drones currently moving from the specified hub.
+        """
         count = 0
         for drone in moves:
             current_hub = paths_assigned[drone.id - 1][positions[drone.id]]
@@ -36,6 +84,18 @@ class Simulation():
         return count
 
     def calculate_turns(self, paths_assigned) -> int:
+        """
+        Simulate a path distribution and calculate its total turns.
+        The simulation processes all drones simultaneously, respecting
+        hub capacities, connection capacities, and the two-turn movement
+        cost of restricted zones. Drones may wait when movement is not
+        possible.
+        Args:
+            paths_assigned: List of paths assigned to each drone.
+        Returns:
+            The number of turns required for all drones to reach the
+            end hub.
+        """
         #positions[drone_id]     → índice
         #assignment[drone_id-1]  → camino
         #assignment[drone_id-1][positions[drone_id]] → hub actual
@@ -148,6 +208,14 @@ class Simulation():
         return turns
 
     def choose_best_distribution(self, distributions):
+        """
+        Select the path distribution requiring the fewest turns.
+        Args:
+            distributions: List of tuples containing a path distribution
+                and the number of turns required to complete it.
+        Returns:
+            The path distribution with the lowest number of turns.
+        """
         best_distribution = distributions[0][0]
         best_turns = distributions[0][1]
         for distribution, turns in distributions:
@@ -157,6 +225,15 @@ class Simulation():
         return best_distribution
 
     def build_distribution(self, paths):
+        """
+        Distribute drones across the available paths.
+        Drones are assigned to paths in a round-robin manner to spread
+        them across the available routes.
+        Args:
+            paths: List of paths available for drone assignment.
+        Returns:
+            A list containing the path assigned to each drone.
+        """
         distribution = []
         number_of_paths = len(paths)
         for drone_index in range(len(self.drones)):
@@ -165,9 +242,24 @@ class Simulation():
         return distribution
 
     def build_minimum_distribution(self):
+        """
+        Build a distribution using only minimum-cost paths.
+        Returns:
+            A path distribution containing only the minimum-cost paths.
+        """
         return self.build_distribution(self.paths)
 
     def assign_paths(self):
+        """
+        Evaluate possible path distributions and select the best one.
+
+        Several distributions are tested using minimum-cost paths and
+        alternative paths with costs one or two turns above the minimum.
+        Each distribution is simulated and the one requiring the fewest
+        turns is selected.
+        Returns:
+            The path distribution with the lowest simulated turn count.
+        """
         if not self.paths:
             return []
         paths_plus_one = []
@@ -226,11 +318,25 @@ class Simulation():
         return self.choose_best_distribution(distributions)
 
     def assign_drones(self):
+        """
+        Create and initialize all drones required by the map.
+        Each drone starts at the map's starting hub and receives a
+        unique identifier.
+
+        """
         for index in range(1, self.map.nb_drones + 1):
             drone = Drone(index, self.map.get_start_hub())
             self.drones.append(drone)
 
     def count_connection_drones(self, connection: Connection) -> int:
+        """
+        Count the drones currently using a connection.
+        Args:
+            connection: Connection whose current drone occupancy is
+                being counted.
+        Returns:
+            Number of drones currently assigned to the connection.
+        """
         nbr_connection_drones = 0
         for drone in self.drones:
             if drone.connection == connection:
@@ -238,17 +344,15 @@ class Simulation():
         return nbr_connection_drones
 
     def count_hub_drones(self, hub: Hub) -> int:
+        """
+        Count the drones currently occupying a hub.
+        Args:
+            hub: Hub whose current drone occupancy is being counted.
+        Returns:
+            Number of drones currently located at the hub.
+        """
         nbr_hub_drones = 0
         for drone in self.drones:
             if drone.current_hub == hub:
                 nbr_hub_drones += 1
         return nbr_hub_drones
-
-    def assign_path_to_drone(self, drone, path):
-        drone.set_path(path)
-
-    def move_drone(self, id_drone: int, hub: Hub):
-        nbr_hub_drones = self.count_hub_drones(hub)
-        # if not hub.is_end():
-        #   if nbr_hub_drones < hub.max_drones:
-        #       self.drones[id_drone - 1].set_hub(hub)

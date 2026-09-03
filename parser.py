@@ -16,6 +16,13 @@ class InvalidConfiguration(Exception):
 
 
 def check_positive_int(value: str) -> None:
+    """
+    Validate that a value is a positive integer.
+    Args:
+        value: String value to validate.
+    Raises:
+        InvalidConfiguration: If the value is not a positive integer.
+    """
     try:
         num = int(value)
     except ValueError:
@@ -25,6 +32,14 @@ def check_positive_int(value: str) -> None:
 
 
 def check_integer(value: str, index: int) -> None:
+    """
+    Validate that a value can be converted to an integer.
+    Args:
+        value: String value representing the integer.
+        index: Line number of the value in the configuration file.
+    Raises:
+        InvalidConfiguration: If the value is not an integer.
+    """
     try:
         int(value)
     except ValueError:
@@ -33,6 +48,14 @@ def check_integer(value: str, index: int) -> None:
 
 
 def check_hub_name(hub_name: str, index: int) -> None:
+    """
+    Validate that a hub name does not contain a dash.
+    Args:
+        hub_name: Name of the hub to validate.
+        index: Line number of the hub in the configuration file.
+    Raises:
+        InvalidConfiguration: If the hub name contains a dash.
+    """
     for character in hub_name:
         if character == "-":
             raise InvalidConfiguration(f"Line {index}: Hub"
@@ -40,6 +63,17 @@ def check_hub_name(hub_name: str, index: int) -> None:
 
 
 def parser_number_drones(index, drone_parts: list[str]) -> int:
+    """
+    Parse and validate the number of drones from a configuration line.
+    Args:
+        index: Line number containing the drone configuration.
+        drone_parts: Parts of the drone configuration split by a colon.
+    Returns:
+        The validated number of drones.
+    Raises:
+        InvalidConfiguration: If the drone configuration has an invalid
+            format or contains a non-positive integer.
+    """
     if len(drone_parts) == 2:
         drone_parameter = drone_parts[1].strip()
         check_positive_int(drone_parameter)
@@ -50,6 +84,17 @@ def parser_number_drones(index, drone_parts: list[str]) -> int:
 
 
 def split_metadata(line: str, index: int) -> tuple[str, str | None]:
+    """
+    Separate the main content of a line from its metadata.
+    Args:
+        line: Configuration line containing optional metadata.
+        index: Line number of the configuration line.
+    Returns:
+        A tuple containing the main content and the metadata content.
+        The metadata value is None when no metadata is present.
+    Raises:
+        InvalidConfiguration: If the metadata brackets or format are invalid.
+    """
     if line.count("[") > 1:
         raise InvalidConfiguration(f"Line {index}: Invalid metadata format")
     if line.count("]") != line.count("["):
@@ -71,6 +116,18 @@ def split_metadata(line: str, index: int) -> tuple[str, str | None]:
 
 
 def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
+    """
+    Parse and validate metadata associated with a hub.
+    Args:
+        metadata: Metadata string containing hub attributes.
+        index: Line number of the hub in the configuration file.
+    Returns:
+        A dictionary containing the zone type, color, and maximum
+        drone capacity of the hub.
+    Raises:
+        InvalidConfiguration: If the metadata format, key, value,
+            zone type, or capacity is invalid.
+    """
     metadata_parts = metadata.split()
     duplicate_list_keys = []
     metadata_data = {
@@ -111,6 +168,17 @@ def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
 
 
 def parse_hub(hub: str, index: int) -> dict[str, object]:
+    """
+    Parse and validate a hub definition.
+    Args:
+        hub: Configuration line defining a hub.
+        index: Line number of the hub in the configuration file.
+    Returns:
+        A dictionary containing the hub name, coordinates, and metadata.
+    Raises:
+        InvalidConfiguration: If the hub format, name, coordinates,
+            or metadata is invalid.
+    """
     metadata_data = {
                     "zone": "normal",
                     "color": "none",
@@ -140,6 +208,17 @@ def parse_hub(hub: str, index: int) -> dict[str, object]:
 
 
 def parse_connection_metadata(metadata: str, index: int) -> int:
+    """
+    Parse and validate connection metadata.
+    Args:
+        metadata: Metadata string containing connection attributes.
+        index: Line number of the connection in the configuration file.
+    Returns:
+        The maximum number of drones allowed on the connection.
+    Raises:
+        InvalidConfiguration: If the metadata format, key, value,
+            or capacity is invalid.
+    """
     max_link_capacity = 1
     metadata_parts = metadata.split()
     duplicate_list_keys = []
@@ -171,6 +250,18 @@ def parse_connection_metadata(metadata: str, index: int) -> int:
 
 
 def parse_connection(connection: str, index: int) -> dict[str, str | int]:
+    """
+    Parse and validate a connection definition.
+    Args:
+        connection: Configuration line defining a connection.
+        index: Line number of the connection in the configuration file.
+    Returns:
+        A dictionary containing the two connected zones and their
+        maximum link capacity.
+    Raises:
+        InvalidConfiguration: If the connection format, zone names,
+            or metadata is invalid.
+    """
     max_link_capacity = 1
     main_part, metadata_part = split_metadata(connection, index)
     main_parts = main_part.split(":")
@@ -198,6 +289,18 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
 
 
 def parse_remaining_lines(content_list: list[tuple[int, str]]) -> tuple[dict, list]:
+    """
+    Parse all hub and connection definitions after the drone count.
+    Args:
+        content_list: List of configuration lines paired with their
+            original line numbers.
+    Returns:
+        A tuple containing a dictionary of hubs and a list of connections.
+    Raises:
+        InvalidConfiguration: If a hub or connection is invalid, duplicated,
+            declared before its zones, or if the configuration does not
+            contain exactly one start hub and one end hub.
+    """
     hubs = {}
     connections = []
     start_hub_count = 0
@@ -248,6 +351,21 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]) -> tuple[dict, li
 
 
 def parser(file_path: str) -> dict[str, object]:
+    """
+    Parse a drone configuration file.
+    The parser reads the configuration file, removes comments and empty
+    lines, validates the drone count, hubs, connections, and metadata,
+    and returns the complete configuration.
+    Args:
+        file_path: Path to the configuration file.
+    Returns:
+        A dictionary containing the number of drones, hubs, and connections.
+    Raises:
+        EmptyFile: If the configuration file is empty.
+        InvalidConfiguration: If the file contains invalid or incomplete
+            configuration data.
+        FileNotFoundError: If the specified file does not exist.
+    """
     content_list: list[tuple[int, str]] = []
     with open(file_path, "r") as f:
         content = f.read()

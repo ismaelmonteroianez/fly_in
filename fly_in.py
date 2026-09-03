@@ -4,6 +4,12 @@ import os
 from drone_controller import DroneController
 
 def main() -> None:
+    """
+    Run the drone simulation using the configuration file provided.
+    Validates the command-line arguments and file path, parses the
+    configuration, and starts the drone controller. Configuration and
+    file-related errors are handled with clear error messages.
+    """
     if len(sys.argv) == 2:
         file_path = sys.argv[1]
         if not file_path.lower().endswith(".txt"):
