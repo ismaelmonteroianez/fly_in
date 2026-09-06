@@ -24,8 +24,10 @@ class DroneController:
         self.map = Map(configuration)
         self.pathfinding = Pathfinding(self.map)
         self.paths, self.minimum_cost = self.get_minimum_paths()
-        self.alternative_paths = self.pathfinding.build_alternative_paths(self.minimum_cost)
-        self.simulation = Simulation(self.map, self.paths, self.alternative_paths, self.minimum_cost)
+        temp = self.pathfinding.build_alternative_paths(self.minimum_cost)
+        self.alternative_paths = temp
+        self.simulation = Simulation(self.map, self.paths,
+                                     self.alternative_paths, self.minimum_cost)
         self.paths_assigned = self.simulation.assign_paths()
         self.current_turn = 1
         self.assign_paths_to_drones()
@@ -43,7 +45,8 @@ class DroneController:
         previous, costs = self.pathfinding.find_path()
         paths = self.pathfinding.build_paths(previous)
         paths = self.pathfinding.reverse_paths(paths)
-        paths.sort(key=self.pathfinding.count_priority_hubs,reverse=True)
+        paths.sort(key=self.pathfinding.count_priority_hubs,
+                   reverse=True)
         end_hub = self.map.get_end_hub()
         minimum_cost = costs[end_hub.name]
         return paths, minimum_cost
@@ -63,7 +66,8 @@ class DroneController:
             return True
         return hub.max_drones > hub_occupancy
 
-    def can_enter_connection(self, connection: Connection, connection_occupancy: int) -> bool:
+    def can_enter_connection(self, connection: Connection,
+                             connection_occupancy: int) -> bool:
         """
         Check whether a drone can enter a connection.
         Args:
@@ -96,7 +100,7 @@ class DroneController:
                 return False
         return True
 
-    def count_moves_from_hub(self,moves: list[Drone], hub: Hub) -> int:
+    def count_moves_from_hub(self, moves: list[Drone], hub: Hub) -> int:
         """
         Count pending drone movements originating from a specific hub.
         Args:
@@ -111,7 +115,9 @@ class DroneController:
                 count += 1
         return count
 
-    def get_move_output(self, drone: Drone, next_hub: Hub, connection: Connection) -> str:
+    def get_move_output(self, drone: Drone,
+                        next_hub: Hub,
+                        connection: Connection) -> str:
         """
         Generate the output representation of a drone movement.
         Restricted-zone movements are represented by the connection used,
@@ -125,7 +131,8 @@ class DroneController:
             A formatted string describing the drone movement.
         """
         if next_hub.zone_type == "restricted":
-            return f"D{drone.id}-{connection.source.name}-{connection.destination.name}"
+            return (f"D{drone.id}-{connection.source.name}-"
+                    f"{connection.destination.name}")
         return f"D{drone.id}-{next_hub.name}"
 
     def process_transit_drones(self) -> tuple[set[int], list[str]]:
@@ -154,8 +161,9 @@ class DroneController:
         return arrived_drones, output_moves
 
     def register_move(self, drone: Drone, next_hub: Hub,
-    connection: Connection, moves: list[Drone], hub_moves: dict[Hub, int],
-    connection_occupancy: dict[Connection, int]) -> None:
+                      connection: Connection, moves: list[Drone],
+                      hub_moves: dict[Hub, int],
+                      connection_occupancy: dict[Connection, int]) -> None:
         """
         Register a valid drone movement for the current turn.
         The movement is added to the pending movements and the connection
@@ -172,7 +180,8 @@ class DroneController:
                 during the current turn.
         """
         moves.append(drone)
-        connection_occupancy[connection] = (connection_occupancy.get(connection, 0) + 1)
+        temp = (connection_occupancy.get(connection, 0) + 1)
+        connection_occupancy[connection] = temp
         if next_hub.zone_type == "restricted":
             drone.connection = connection
         else:
@@ -216,7 +225,7 @@ class DroneController:
             current_hub = drone.get_hub()
             if current_hub is None:
                 continue
-            if drone.is_finished(): 
+            if drone.is_finished():
                 continue
             next_hub = drone.path[drone.path_index + 1]
             connection = current_hub.get_connection_to(next_hub)
@@ -227,12 +236,17 @@ class DroneController:
             hub_drones -= self.count_moves_from_hub(moves, next_hub)
             hub_drones += hub_moves.get(next_hub, 0)
             if next_hub.zone_type == "restricted":
-                can_move = self.can_enter_connection(connection, connection_drones)
+                can_move = self.can_enter_connection(connection,
+                                                     connection_drones)
             else:
-                can_move = (self.can_enter_hub(next_hub, hub_drones) and self.can_enter_connection( connection, connection_drones))
-            if can_move: 
-                self.register_move(drone, next_hub,connection, moves, hub_moves, connection_occupancy)
-                output_moves.append(self.get_move_output(drone, next_hub, connection))
+                can_move = (self.can_enter_hub(next_hub, hub_drones)
+                            and self.can_enter_connection(connection,
+                                                          connection_drones))
+            if can_move:
+                self.register_move(drone, next_hub, connection,
+                                   moves, hub_moves, connection_occupancy)
+                output_moves.append(self.get_move_output(drone,
+                                                         next_hub, connection))
         self.execute_moves(moves)
         print(" ".join(output_moves))
 

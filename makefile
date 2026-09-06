@@ -1,5 +1,5 @@
 NAME = fly_in.py
-PYTHON = python
+PYTHON = python3
 PIP = pip
 
 .PHONY: install run debug clean lint lint-strict

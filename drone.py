@@ -1,6 +1,7 @@
 from hub import Hub
 from connection import Connection
 
+
 class Drone():
     """
     Represent a drone and its state during the simulation.

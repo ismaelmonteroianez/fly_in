@@ -12,7 +12,9 @@ class Hub():
     drone capacity, and connections to other hubs.
     """
 
-    def __init__(self, name: str, x: int, y: int, hub_type: str, zone_type: str, color: str, max_drones: int):
+    def __init__(self, name: str, x: int, y: int,
+                 hub_type: str, zone_type: str,
+                 color: str, max_drones: int):
         """
         Initialize a hub with its network and zone properties.
         Args:

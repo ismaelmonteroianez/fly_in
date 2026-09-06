@@ -12,8 +12,8 @@ class Connection():
     number of drones that can traverse it simultaneously.
     """
 
-
-    def __init__(self, source: "Hub", destination: "Hub", max_link_capacity: int):
+    def __init__(self, source: "Hub",
+                 destination: "Hub", max_link_capacity: int):
         """
         Initialize a connection between two hubs.
         Args:
@@ -73,4 +73,6 @@ class Connection():
         Returns:
             A string containing the connected hubs and their capacity.
         """
-        return f"Connection {self.source.name} -> {self.destination.name} - capacity: {self.max_link_capacity}"
+        return (f"Connection {self.source.name} -> "
+                f"{self.destination.name} - "
+                f"capacity: {self.max_link_capacity}")

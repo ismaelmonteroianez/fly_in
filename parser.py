@@ -288,7 +288,8 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
     return connection_data
 
 
-def parse_remaining_lines(content_list: list[tuple[int, str]]) -> tuple[dict, list]:
+def parse_remaining_lines(content_list: list[tuple[int, str]]
+                          ) -> tuple[dict, list]:
     """
     Parse all hub and connection definitions after the drone count.
     Args:
@@ -331,12 +332,19 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]) -> tuple[dict, li
             hubs[hub_data["name"]] = hub_data
         elif line.startswith("connection:"):
             connection_data = parse_connection(line, index)
-            if connection_data["zone1"] not in hubs or connection_data["zone2"] not in hubs:
-                raise InvalidConfiguration(f"Line {index}: Conexion declared before zone in file")
+            if (connection_data["zone1"] not in hubs
+                    or connection_data["zone2"] not in hubs):
+                raise InvalidConfiguration(f"Line {index}: Conexion declared "
+                                           "before zone in file")
             for connection in connections:
-                if ((connection["zone1"] == connection_data["zone1"] and connection["zone2"] == connection_data["zone2"]) or
-                    (connection["zone2"] == connection_data["zone1"] and connection["zone1"] == connection_data["zone2"])):
-                    raise InvalidConfiguration(f"Line {index}: Duplicated connection")
+                if (
+                    (connection["zone1"] == connection_data["zone1"]
+                     and connection["zone2"] == connection_data["zone2"])
+                    or
+                    (connection["zone2"] == connection_data["zone1"]
+                     and connection["zone1"] == connection_data["zone2"])):
+                    raise InvalidConfiguration(f"Line {index}: "
+                                               "Duplicated connection")
             connections.append(connection_data)
         else:
             raise InvalidConfiguration(f"Line {index}: "

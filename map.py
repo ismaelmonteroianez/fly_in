@@ -32,7 +32,10 @@ class Map():
         """
         for hub_name, hub_data in hubs_data.items():
             metadata = hub_data["metadata"]
-            hub = Hub(hub_name, hub_data["x"], hub_data["y"], hub_data["type"], metadata["zone"], metadata["color"], metadata["max_drones"])
+            hub = Hub(hub_name, hub_data["x"],
+                      hub_data["y"], hub_data["type"],
+                      metadata["zone"], metadata["color"],
+                      metadata["max_drones"])
             self.hubs[hub_name] = hub
 
     def create_connections(self, connections_data):
@@ -45,7 +48,8 @@ class Map():
         for connection_data in connections_data:
             source = self.hubs[connection_data["zone1"]]
             destination = self.hubs[connection_data["zone2"]]
-            connection = Connection(source, destination, connection_data["max_link_capacity"])
+            connection = Connection(source, destination,
+                                    connection_data["max_link_capacity"])
             self.connections.append(connection)
 
     def add_connections_to_hubs(self):

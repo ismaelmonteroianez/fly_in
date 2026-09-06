@@ -3,6 +3,7 @@ import sys
 import os
 from drone_controller import DroneController
 
+
 def main() -> None:
     """
     Run the drone simulation using the configuration file provided.
@@ -31,6 +32,7 @@ def main() -> None:
     else:
         print("Error in arguments provided."
               " Usage: python3 fly_in.py <map.txt>")
+
 
 if __name__ == "__main__":
     main()

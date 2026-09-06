@@ -79,7 +79,8 @@ class Pathfinding():
                 step_cost = 0
                 if neighbour in path:
                     continue
-                if neighbour.zone_type == "normal" or neighbour.zone_type == "priority":
+                if (neighbour.zone_type == "normal"
+                   or neighbour.zone_type == "priority"):
                     step_cost = 1
                 elif neighbour.zone_type == "restricted":
                     step_cost = 2
@@ -90,7 +91,6 @@ class Pathfinding():
                 new_path.append(neighbour)
                 pending.append((new_path, new_cost))
         return alternative_paths
-
 
     def build_paths(self, previous):
         """
@@ -125,7 +125,6 @@ class Pathfinding():
                     pending.append(new_path)
         return paths
 
-
     def find_path(self):
         """
         Find the minimum movement cost and all corresponding paths.
@@ -158,7 +157,8 @@ class Pathfinding():
                 break
             for neighbour in current.get_accessible_hubs():
                 new_cost = costs[current.name]
-                if neighbour.zone_type == "normal" or neighbour.zone_type == "priority":
+                if (neighbour.zone_type == "normal"
+                   or neighbour.zone_type == "priority"):
                     new_cost += 1
                 elif neighbour.zone_type == "restricted":
                     new_cost += 2
