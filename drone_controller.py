@@ -4,7 +4,7 @@ from map import Map
 from connection import Connection
 from simulation import Simulation
 from pathfinding import Pathfinding
-
+from parser import ConfigurationData
 
 class DroneController:
     """
@@ -14,7 +14,7 @@ class DroneController:
     to the drones, and executes the simulation turn by turn.
     """
 
-    def __init__(self, configuration: dict[str, object]) -> None:
+    def __init__(self, configuration: ConfigurationData) -> None:
         """
         Initialize the drone controller with the provided configuration.
         Args:
@@ -48,6 +48,8 @@ class DroneController:
         paths.sort(key=self.pathfinding.count_priority_hubs,
                    reverse=True)
         end_hub = self.map.get_end_hub()
+        if end_hub is None:
+            raise ValueError("No end hub found")
         minimum_cost = costs[end_hub.name]
         return paths, minimum_cost
 

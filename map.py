@@ -1,6 +1,6 @@
 from hub import Hub
 from connection import Connection
-
+from parser import ConfigurationData, HubData, ConnectionData
 
 class Map():
     """
@@ -8,14 +8,14 @@ class Map():
     A map contains all hubs and connections defined in the configuration
     and establishes the relationships between connected hubs.
     """
-    def __init__(self, configuration):
+    def __init__(self, configuration: ConfigurationData):
         """
         Initialize the map from a parsed configuration.
         Args:
             configuration: Dictionary containing the number of drones,
                 hub definitions, and connection definitions.
         """
-        self.configuration: dict[str, object] = configuration
+        self.configuration = configuration
         self.nb_drones = configuration["nb_drones"]
         self.hubs: dict[str, Hub] = {}
         self.connections: list[Connection] = []
@@ -23,7 +23,7 @@ class Map():
         self.create_connections(configuration["connections"])
         self.add_connections_to_hubs()
 
-    def create_hubs(self, hubs_data):
+    def create_hubs(self, hubs_data: dict[str, HubData]) -> None:
         """
         Create and store all hubs defined in the configuration.
         Args:
@@ -38,7 +38,7 @@ class Map():
                       metadata["max_drones"])
             self.hubs[hub_name] = hub
 
-    def create_connections(self, connections_data):
+    def create_connections(self, connections_data: list[ConnectionData]) -> None:
         """
         Create and store all connections defined in the configuration.
         Args:
@@ -52,7 +52,7 @@ class Map():
                                     connection_data["max_link_capacity"])
             self.connections.append(connection)
 
-    def add_connections_to_hubs(self):
+    def add_connections_to_hubs(self) -> None:
         """
         Add each connection to both hubs that it links.
         """
@@ -79,6 +79,7 @@ class Map():
         for hub in self.hubs.values():
             if hub.is_start():
                 return hub
+        return None
 
     def get_end_hub(self) -> Hub | None:
         """
@@ -89,3 +90,4 @@ class Map():
         for hub in self.hubs.values():
             if hub.is_end():
                 return hub
+        return None

@@ -52,7 +52,7 @@ class Hub():
             accesible_hubs.append(hub_connected)
         return accesible_hubs
 
-    def get_connection_to(self, hub: "Hub"):
+    def get_connection_to(self, hub: "Hub") -> "Connection | None":
         """
         Find the connection linking this hub to another hub.
         Args:
@@ -86,7 +86,7 @@ class Hub():
             return True
         return False
 
-    def add_connection(self, connection: "Connection"):
+    def add_connection(self, connection: "Connection") -> None:
         """
         Add a connection to this hub.
         Args:

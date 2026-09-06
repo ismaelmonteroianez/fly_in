@@ -19,7 +19,7 @@ class Drone():
         self.id = drone_id
         self.current_hub: Hub | None = start_hub
         self.finished = False
-        self.path = []
+        self.path: list[Hub] = []
         self.path_index = 0
         self.connection: Connection | None = None
 
@@ -52,7 +52,7 @@ class Drone():
         """Mark the drone as having reached its destination."""
         self.finished = True
 
-    def set_path(self, path):
+    def set_path(self, path: list[Hub]) -> None:
         """
         Assign a path to the drone and reset its path progress.
         Args:
@@ -61,7 +61,7 @@ class Drone():
         self.path = path
         self.path_index = 0
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return a human-readable representation of the drone.
         Returns:

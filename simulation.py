@@ -102,7 +102,7 @@ class Simulation():
         positions = {}
         finished_drones = {}
         hub_occupancy = {}
-        transit = {}
+        transit: dict[int, Connection | None] = {}
         for drone in self.drones:
             positions[drone.id] = 0
             finished_drones[drone.id] = False
@@ -114,55 +114,68 @@ class Simulation():
         finished_count = 0
         turns = 0
         while finished_count < len(self.drones):
-            moves = []
+            moves: list[Drone] = []
             turns += 1
-            connection_occupancy = {}
-            hub_moves = {}
+            connection_occupancy: dict[Connection, int] = {}
+            hub_moves: dict[Hub, int] = {}
             arrived_from_transit = set()
             for drone in self.drones:
                 if transit[drone.id] is not None:
                     connection = transit[drone.id]
                     current_position = positions[drone.id]
-                    next_hub = paths_assigned[drone.id - 1][current_position + 1]
+                    next_hub = paths_assigned[drone.id - 1][
+                        current_position + 1]
                     positions[drone.id] += 1
                     transit[drone.id] = None
                     arrived_from_transit.add(drone.id)
-                    hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1
-                    if positions[drone.id] == len(paths_assigned[drone.id - 1]) - 1:
+                    hub_occupancy[next_hub] = (
+                        hub_occupancy.get(next_hub, 0) + 1)
+                    if positions[drone.id] == (
+                       len(paths_assigned[drone.id - 1]) - 1):
                         finished_drones[drone.id] = True
                         finished_count += 1
             for drone in self.drones:
                 if drone.id in arrived_from_transit:
                     continue
-                current_hub: Hub = paths_assigned[drone.id - 1][positions[drone.id]]
-                if positions[drone.id] == len(paths_assigned[drone.id - 1]) - 1:
+                current_hub = (paths_assigned[drone.id - 1][
+                    positions[drone.id]])
+                if positions[drone.id] == (
+                   len(paths_assigned[drone.id - 1]) - 1):
                     if finished_drones[drone.id]:
                         continue
-                next_hub = paths_assigned[drone.id - 1][positions[drone.id] + 1]
+                next_hub = (paths_assigned[drone.id - 1][
+                           positions[drone.id] + 1])
                 connection = current_hub.get_connection_to(next_hub)
                 hub_drones = hub_occupancy.get(next_hub, 0)
                 connection_drones = connection_occupancy.get(connection, 0)
-                hub_drones -= self.count_moves_from_hub(moves, next_hub, paths_assigned, positions)
+                hub_drones -= self.count_moves_from_hub(
+                              moves, next_hub, paths_assigned, positions)
                 hub_drones += hub_moves.get(next_hub, 0)
                 if next_hub.zone_type == "restricted":
-                    can_move = self.can_enter_connection(connection, connection_drones)
+                    can_move = self.can_enter_connection(connection,
+                                                         connection_drones)
                 else:
-                    can_move = (self.can_enter_hub(next_hub, hub_drones) and self.can_enter_connection(connection, connection_drones))
+                    can_move = (self.can_enter_hub(next_hub, hub_drones) and
+                                self.can_enter_connection(connection,
+                                                          connection_drones))
                 if can_move:
                     moves.append(drone)
-                    connection_occupancy[connection] = connection_occupancy.get(connection, 0) + 1
+                    connection_occupancy[connection] = (
+                        connection_occupancy.get(connection, 0) + 1)
                     if next_hub.zone_type == "restricted":
                         transit[drone.id] = connection
                     else:
                         hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
             for drone in moves:
                 current_hub = paths_assigned[drone.id - 1][positions[drone.id]]
-                next_hub = paths_assigned[drone.id - 1][positions[drone.id] + 1]
+                next_hub = (paths_assigned[drone.id - 1][
+                           positions[drone.id] + 1])
                 hub_occupancy[current_hub] -= 1
                 if next_hub.zone_type == "restricted":
                     continue
                 positions[drone.id] += 1
-                if positions[drone.id] == len(paths_assigned[drone.id - 1]) - 1:
+                if positions[drone.id] == (
+                   len(paths_assigned[drone.id - 1]) - 1):
                     finished_drones[drone.id] = True
                     finished_count += 1
                 hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1

@@ -1,3 +1,32 @@
+from typing import TypedDict
+
+class ParsedHubData(TypedDict):
+    name: str
+    x: int
+    y: int
+    metadata: dict[str, str | int]
+
+
+class HubData(TypedDict):
+    name: str
+    x: int
+    y: int
+    type: str
+    metadata: dict[str, str | int]
+
+
+class ConnectionData(TypedDict):
+    zone1: str
+    zone2: str
+    max_link_capacity: int
+
+
+class ConfigurationData(TypedDict):
+    nb_drones: int
+    hubs: dict[str, HubData]
+    connections: list[ConnectionData]
+
+
 class EmptyFile(Exception):
     """
     Exception raised when the configuration file is empty.
@@ -62,7 +91,7 @@ def check_hub_name(hub_name: str, index: int) -> None:
                                        " names cannot contain '-'")
 
 
-def parser_number_drones(index, drone_parts: list[str]) -> int:
+def parser_number_drones(index: int, drone_parts: list[str]) -> int:
     """
     Parse and validate the number of drones from a configuration line.
     Args:
@@ -130,7 +159,7 @@ def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
     """
     metadata_parts = metadata.split()
     duplicate_list_keys = []
-    metadata_data = {
+    metadata_data: dict[str, str | int] = {
                     "zone": "normal",
                     "color": "none",
                     "max_drones": 1
@@ -167,7 +196,7 @@ def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
     return metadata_data
 
 
-def parse_hub(hub: str, index: int) -> dict[str, object]:
+def parse_hub(hub: str, index: int) -> ParsedHubData:
     """
     Parse and validate a hub definition.
     Args:
@@ -179,7 +208,7 @@ def parse_hub(hub: str, index: int) -> dict[str, object]:
         InvalidConfiguration: If the hub format, name, coordinates,
             or metadata is invalid.
     """
-    metadata_data = {
+    metadata_data: dict[str, str | int] = {
                     "zone": "normal",
                     "color": "none",
                     "max_drones": 1
@@ -198,7 +227,7 @@ def parse_hub(hub: str, index: int) -> dict[str, object]:
     check_integer(y, index)
     if metadata_part is not None:
         metadata_data = parse_hub_metadata(metadata_part, index)
-    hub_data = {
+    hub_data: ParsedHubData = {
             "name": hub_name,
             "x": int(x),
             "y": int(y),
@@ -280,7 +309,7 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
                                    "Connection cannot link a zone to itself")
     if metadata_part is not None:
         max_link_capacity = parse_connection_metadata(metadata_part, index)
-    connection_data = {
+    connection_data: dict[str, str | int] = {
         "zone1": zone1,
         "zone2": zone2,
         "max_link_capacity": max_link_capacity
@@ -289,7 +318,7 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
 
 
 def parse_remaining_lines(content_list: list[tuple[int, str]]
-                          ) -> tuple[dict, list]:
+                          ) -> tuple[dict[str, HubData], list[dict[str, str | int]]]:
     """
     Parse all hub and connection definitions after the drone count.
     Args:
@@ -302,8 +331,8 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]
             declared before its zones, or if the configuration does not
             contain exactly one start hub and one end hub.
     """
-    hubs = {}
-    connections = []
+    hubs: dict[str, HubData] = {}
+    connections: list[dict[str, str | int]] = []
     start_hub_count = 0
     end_hub_count = 0
     for index, line in content_list[1:]:
@@ -312,24 +341,30 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]
             if hub_data["name"] in hubs:
                 raise InvalidConfiguration(f"Line {index}: "
                                            "Duplicated hub name")
-            hub_data["type"] = "start"
-            hubs[hub_data["name"]] = hub_data
+            hubs[hub_data["name"]] = {
+                                **hub_data,
+                                "type": "start"
+                                    }
             start_hub_count += 1
         elif line.startswith("end_hub:"):
             hub_data = parse_hub(line, index)
             if hub_data["name"] in hubs:
                 raise InvalidConfiguration(f"Line {index}: "
                                            "Duplicated hub name")
-            hub_data["type"] = "end"
-            hubs[hub_data["name"]] = hub_data
+            hubs[hub_data["name"]] = {
+                                    **hub_data,
+                                    "type": "end"
+                                    }
             end_hub_count += 1
         elif line.startswith("hub:"):
             hub_data = parse_hub(line, index)
             if hub_data["name"] in hubs:
                 raise InvalidConfiguration(f"Line {index}: "
                                            "Duplicated hub name")
-            hub_data["type"] = "hub"
-            hubs[hub_data["name"]] = hub_data
+            hubs[hub_data["name"]] = {
+                                    **hub_data,
+                                    "type": "hub"
+                                     }
         elif line.startswith("connection:"):
             connection_data = parse_connection(line, index)
             if (connection_data["zone1"] not in hubs
@@ -358,7 +393,7 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]
     return hubs, connections
 
 
-def parser(file_path: str) -> dict[str, object]:
+def parser(file_path: str) -> ConfigurationData:
     """
     Parse a drone configuration file.
     The parser reads the configuration file, removes comments and empty
@@ -395,7 +430,7 @@ def parser(file_path: str) -> dict[str, object]:
         drone_parameters = content_list[0][1].split(":")
         nbr_drones = parser_number_drones(content_list[0][0], drone_parameters)
     hubs, connections = parse_remaining_lines(content_list)
-    configuration = {
+    configuration: ConfigurationData = {
                     "nb_drones": nbr_drones,
                     "hubs": hubs,
                     "connections": connections
