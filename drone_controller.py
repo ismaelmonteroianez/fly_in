@@ -50,7 +50,7 @@ class DroneController:
         end_hub = self.map.get_end_hub()
         if end_hub is None:
             raise ValueError("No end hub found")
-        minimum_cost = costs[end_hub.name]
+        minimum_cost = int(costs[end_hub.name])
         return paths, minimum_cost
 
     def can_enter_hub(self, hub: Hub, hub_occupancy: int) -> bool:

@@ -1,10 +1,17 @@
 from typing import TypedDict
 
+
+class HubMetadata(TypedDict):
+    zone: str
+    color: str
+    max_drones: int
+
+
 class ParsedHubData(TypedDict):
     name: str
     x: int
     y: int
-    metadata: dict[str, str | int]
+    metadata: HubMetadata
 
 
 class HubData(TypedDict):
@@ -12,7 +19,7 @@ class HubData(TypedDict):
     x: int
     y: int
     type: str
-    metadata: dict[str, str | int]
+    metadata: HubMetadata
 
 
 class ConnectionData(TypedDict):
@@ -144,7 +151,7 @@ def split_metadata(line: str, index: int) -> tuple[str, str | None]:
     return main_part, metadata_part
 
 
-def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
+def parse_hub_metadata(metadata: str, index: int) -> HubMetadata:
     """
     Parse and validate metadata associated with a hub.
     Args:
@@ -159,7 +166,7 @@ def parse_hub_metadata(metadata: str, index: int) -> dict[str, str | int]:
     """
     metadata_parts = metadata.split()
     duplicate_list_keys = []
-    metadata_data: dict[str, str | int] = {
+    metadata_data: HubMetadata = {
                     "zone": "normal",
                     "color": "none",
                     "max_drones": 1
@@ -208,7 +215,7 @@ def parse_hub(hub: str, index: int) -> ParsedHubData:
         InvalidConfiguration: If the hub format, name, coordinates,
             or metadata is invalid.
     """
-    metadata_data: dict[str, str | int] = {
+    metadata_data: HubMetadata = {
                     "zone": "normal",
                     "color": "none",
                     "max_drones": 1
@@ -278,7 +285,7 @@ def parse_connection_metadata(metadata: str, index: int) -> int:
     return max_link_capacity
 
 
-def parse_connection(connection: str, index: int) -> dict[str, str | int]:
+def parse_connection(connection: str, index: int) -> ConnectionData:
     """
     Parse and validate a connection definition.
     Args:
@@ -309,7 +316,7 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
                                    "Connection cannot link a zone to itself")
     if metadata_part is not None:
         max_link_capacity = parse_connection_metadata(metadata_part, index)
-    connection_data: dict[str, str | int] = {
+    connection_data: ConnectionData = {
         "zone1": zone1,
         "zone2": zone2,
         "max_link_capacity": max_link_capacity
@@ -318,7 +325,7 @@ def parse_connection(connection: str, index: int) -> dict[str, str | int]:
 
 
 def parse_remaining_lines(content_list: list[tuple[int, str]]
-                          ) -> tuple[dict[str, HubData], list[dict[str, str | int]]]:
+                          ) -> tuple[dict[str, HubData], list[ConnectionData]]:
     """
     Parse all hub and connection definitions after the drone count.
     Args:
@@ -332,7 +339,7 @@ def parse_remaining_lines(content_list: list[tuple[int, str]]
             contain exactly one start hub and one end hub.
     """
     hubs: dict[str, HubData] = {}
-    connections: list[dict[str, str | int]] = []
+    connections: list[ConnectionData] = []
     start_hub_count = 0
     end_hub_count = 0
     for index, line in content_list[1:]:

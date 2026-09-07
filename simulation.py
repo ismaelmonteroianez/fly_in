@@ -12,8 +12,8 @@ class Simulation():
     turns required to deliver all drones. The distribution with the
     lowest number of turns is selected for the actual simulation.
     """
-    def __init__(self, map: Map, paths,
-                 alternative_paths, minimum_cost) -> None:
+    def __init__(self, map: Map, paths: list[list[Hub]],
+                 alternative_paths: list[tuple[list[Hub], int]], minimum_cost: int | float) -> None:
         """
         Initialize the simulation and prepare the drone distribution.
         Args:
@@ -66,7 +66,7 @@ class Simulation():
             return True
         return False
 
-    def count_moves_from_hub(self, moves, hub, paths_assigned, positions):
+    def count_moves_from_hub(self, moves: list[Drone], hub: Hub, paths_assigned: list[list[Hub]], positions: dict[int, int]) -> int:
         """
         Count drones that are moving out of a specific hub.
         This is used to account for capacity that becomes available when
@@ -86,7 +86,7 @@ class Simulation():
                 count += 1
         return count
 
-    def calculate_turns(self, paths_assigned) -> int:
+    def calculate_turns(self, paths_assigned: list[list[Hub]]) -> int:
         """
         Simulate a path distribution and calculate its total turns.
         The simulation processes all drones simultaneously, respecting
@@ -146,6 +146,8 @@ class Simulation():
                 next_hub = (paths_assigned[drone.id - 1][
                            positions[drone.id] + 1])
                 connection = current_hub.get_connection_to(next_hub)
+                if connection is None:
+                    continue
                 hub_drones = hub_occupancy.get(next_hub, 0)
                 connection_drones = connection_occupancy.get(connection, 0)
                 hub_drones -= self.count_moves_from_hub(
@@ -181,7 +183,7 @@ class Simulation():
                 hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1
         return turns
 
-    def choose_best_distribution(self, distributions):
+    def choose_best_distribution(self, distributions: list[tuple[list[list[Hub]], int]]) -> list[list[Hub]]:
         """
         Select the path distribution requiring the fewest turns.
         Args:
@@ -198,7 +200,7 @@ class Simulation():
                 best_turns = turns
         return best_distribution
 
-    def build_distribution(self, paths):
+    def build_distribution(self, paths: list[list[Hub]]) -> list[list[Hub]]:
         """
         Distribute drones across the available paths.
         Drones are assigned to paths in a round-robin manner to spread
@@ -215,7 +217,7 @@ class Simulation():
             distribution.append(path)
         return distribution
 
-    def build_minimum_distribution(self):
+    def build_minimum_distribution(self) -> list[list[Hub]]:
         """
         Build a distribution using only minimum-cost paths.
         Returns:
@@ -223,7 +225,7 @@ class Simulation():
         """
         return self.build_distribution(self.paths)
 
-    def assign_paths(self):
+    def assign_paths(self) -> list[list[Hub]]:
         """
         Evaluate possible path distributions and select the best one.
 
@@ -264,15 +266,15 @@ class Simulation():
             plus_two_distribution = self.build_distribution(available_paths)
             turns_two = self.calculate_turns(plus_two_distribution)
         distributions = [(minimum_distribution, turns_minimum)]
-        if one_distribution is not None:
+        if one_distribution is not None and turns_one is not None:
             distributions.append((one_distribution, turns_one))
-        if two_distribution is not None:
+        if two_distribution is not None and turns_two is not None:
             distributions.append((two_distribution, turns_two))
-        if one_two_distribution is not None:
+        if one_two_distribution is not None and turns_one_two is not None:
             distributions.append((one_two_distribution, turns_one_two))
         return self.choose_best_distribution(distributions)
 
-    def assign_drones(self):
+    def assign_drones(self) -> None:
         """
         Create and initialize all drones required by the map.
         Each drone starts at the map's starting hub and receives a
