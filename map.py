@@ -2,6 +2,7 @@ from hub import Hub
 from connection import Connection
 from parser import ConfigurationData, HubData, ConnectionData
 
+
 class Map():
     """
     Represent the drone network map.
@@ -38,7 +39,8 @@ class Map():
                       metadata["max_drones"])
             self.hubs[hub_name] = hub
 
-    def create_connections(self, connections_data: list[ConnectionData]) -> None:
+    def create_connections(self,
+                           connections_data: list[ConnectionData]) -> None:
         """
         Create and store all connections defined in the configuration.
         Args:

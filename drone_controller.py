@@ -6,6 +6,7 @@ from simulation import Simulation
 from pathfinding import Pathfinding
 from parser import ConfigurationData
 
+
 class DroneController:
     """
     Coordinate pathfinding, path assignment, and drone simulation.

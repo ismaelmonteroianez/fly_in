@@ -13,7 +13,8 @@ class Simulation():
     lowest number of turns is selected for the actual simulation.
     """
     def __init__(self, map: Map, paths: list[list[Hub]],
-                 alternative_paths: list[tuple[list[Hub], int]], minimum_cost: int | float) -> None:
+                 alternative_paths: list[tuple[list[Hub], int]],
+                 minimum_cost: int | float) -> None:
         """
         Initialize the simulation and prepare the drone distribution.
         Args:
@@ -66,7 +67,9 @@ class Simulation():
             return True
         return False
 
-    def count_moves_from_hub(self, moves: list[Drone], hub: Hub, paths_assigned: list[list[Hub]], positions: dict[int, int]) -> int:
+    def count_moves_from_hub(self, moves: list[Drone],
+                             hub: Hub, paths_assigned: list[list[Hub]],
+                             positions: dict[int, int]) -> int:
         """
         Count drones that are moving out of a specific hub.
         This is used to account for capacity that becomes available when
@@ -183,7 +186,10 @@ class Simulation():
                 hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1
         return turns
 
-    def choose_best_distribution(self, distributions: list[tuple[list[list[Hub]], int]]) -> list[list[Hub]]:
+    def choose_best_distribution(self,
+                                 distributions:
+                                 list[tuple[list[list[Hub]], int]]
+                                 ) -> list[list[Hub]]:
         """
         Select the path distribution requiring the fewest turns.
         Args:

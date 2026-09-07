@@ -20,7 +20,8 @@ class Pathfinding():
         """
         self.map = map
 
-    def reverse_paths(self, inverted_paths: list[list[Hub]]) -> list[list[Hub]]:
+    def reverse_paths(self,
+                      inverted_paths: list[list[Hub]]) -> list[list[Hub]]:
         """
         Reverse paths generated from the destination to the start.
         Args:
@@ -50,7 +51,9 @@ class Pathfinding():
                 priority_count += 1
         return priority_count
 
-    def build_alternative_paths(self, minimum_cost: int) -> list[tuple[list[Hub], int]]:
+    def build_alternative_paths(self,
+                                minimum_cost: int
+                                ) -> list[tuple[list[Hub], int]]:
         """
         Build paths whose cost is slightly higher than the minimum.
         This method explores the network without revisiting hubs and
