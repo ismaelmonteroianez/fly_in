@@ -1,0 +1,6 @@
+color aceptar solo palabras color ??
+capar numero drones (revisar cuantos puedo meter)
+los drones deben esperar un turno extra a que el dron llegue al hub cuando es restricted
+poner color al output
+readme
+practicar la flag
