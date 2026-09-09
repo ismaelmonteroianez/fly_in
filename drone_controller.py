@@ -187,8 +187,7 @@ class DroneController:
         connection_occupancy[connection] = temp
         if next_hub.zone_type == "restricted":
             drone.connection = connection
-        else:
-            hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
+        hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
 
     def execute_moves(self, moves: list[Drone]) -> None:
         """
@@ -239,8 +238,9 @@ class DroneController:
             hub_drones -= self.count_moves_from_hub(moves, next_hub)
             hub_drones += hub_moves.get(next_hub, 0)
             if next_hub.zone_type == "restricted":
-                can_move = self.can_enter_connection(connection,
-                                                     connection_drones)
+                can_move = (self.can_enter_hub(next_hub, hub_drones)
+                and self.can_enter_connection(connection,
+                                               connection_drones))
             else:
                 can_move = (self.can_enter_hub(next_hub, hub_drones)
                             and self.can_enter_connection(connection,

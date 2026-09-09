@@ -118,6 +118,7 @@ class Simulation():
         turns = 0
         while finished_count < len(self.drones):
             moves: list[Drone] = []
+            output_moves = []  # eliminar luego
             turns += 1
             connection_occupancy: dict[Connection, int] = {}
             hub_moves: dict[Hub, int] = {}
@@ -128,6 +129,7 @@ class Simulation():
                     current_position = positions[drone.id]
                     next_hub = paths_assigned[drone.id - 1][
                         current_position + 1]
+                    output_moves.append(f"D{drone.id}-{next_hub.name}")  # eliminar luego
                     positions[drone.id] += 1
                     transit[drone.id] = None
                     arrived_from_transit.add(drone.id)
@@ -157,8 +159,9 @@ class Simulation():
                               moves, next_hub, paths_assigned, positions)
                 hub_drones += hub_moves.get(next_hub, 0)
                 if next_hub.zone_type == "restricted":
-                    can_move = self.can_enter_connection(connection,
-                                                         connection_drones)
+                    can_move = (self.can_enter_hub(next_hub, hub_drones) and
+                                 self.can_enter_connection(connection,
+                                               connection_drones))
                 else:
                     can_move = (self.can_enter_hub(next_hub, hub_drones) and
                                 self.can_enter_connection(connection,
@@ -169,21 +172,27 @@ class Simulation():
                         connection_occupancy.get(connection, 0) + 1)
                     if next_hub.zone_type == "restricted":
                         transit[drone.id] = connection
-                    else:
-                        hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
+                    hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
             for drone in moves:
                 current_hub = paths_assigned[drone.id - 1][positions[drone.id]]
                 next_hub = (paths_assigned[drone.id - 1][
                            positions[drone.id] + 1])
                 hub_occupancy[current_hub] -= 1
                 if next_hub.zone_type == "restricted":
+                    connection = current_hub.get_connection_to(next_hub) #eliminar luego
+                    output_moves.append( #eliminar luego
+                    f"D{drone.id}-{connection.source.name}-" #eliminar luego
+                    f"{connection.destination.name}") #eliminar luego
                     continue
+                else: #eliminar luego
+                    output_moves.append(f"D{drone.id}-{next_hub.name}") #eliminar luego
                 positions[drone.id] += 1
                 if positions[drone.id] == (
                    len(paths_assigned[drone.id - 1]) - 1):
                     finished_drones[drone.id] = True
                     finished_count += 1
                 hub_occupancy[next_hub] = hub_occupancy.get(next_hub, 0) + 1
+            print(" ".join(output_moves))
         return turns
 
     def choose_best_distribution(self,
@@ -244,6 +253,8 @@ class Simulation():
         """
         if not self.paths:
             return []
+        if len(self.drones) > 1000:
+            return self.build_minimum_distribution()
         paths_plus_one = []
         paths_plus_two = []
         for path, cost in self.alternative_paths:
@@ -252,30 +263,46 @@ class Simulation():
             elif cost == self.minimum_cost + 2:
                 paths_plus_two.append(path)
         minimum_distribution = self.build_minimum_distribution()
+        print("OUTPUT MINIMUM:")
+        print()
         turns_minimum = self.calculate_turns(minimum_distribution)
-        one_distribution = None
+        print(turns_minimum)
+        print()
+        plus_one_distribution = None
         turns_one = None
-        two_distribution = None
+        plus_two_distribution = None
         turns_two = None
         one_two_distribution = None
         turns_one_two = None
         if paths_plus_one:
             available_paths = self.paths + paths_plus_one
             plus_one_distribution = self.build_distribution(available_paths)
+            print("OUTPUT MINIMUM PLUS ONE:")
+            print()
             turns_one = self.calculate_turns(plus_one_distribution)
+            print(turns_one)
+            print()
         if len(paths_plus_one) >= 2:
             available_paths = self.paths + paths_plus_one[:2]
             one_two_distribution = self.build_distribution(available_paths)
+            print("OUTPUT MINIMUM PLUS ONE TWO")
+            print()
             turns_one_two = self.calculate_turns(one_two_distribution)
+            print(turns_one_two)
+            print()
         if paths_plus_two:
             available_paths = self.paths + paths_plus_two
             plus_two_distribution = self.build_distribution(available_paths)
+            print("OUTPUT MINIMUM PLUS TWO")
+            print()
             turns_two = self.calculate_turns(plus_two_distribution)
+            print(turns_two)
+            print()
         distributions = [(minimum_distribution, turns_minimum)]
-        if one_distribution is not None and turns_one is not None:
-            distributions.append((one_distribution, turns_one))
-        if two_distribution is not None and turns_two is not None:
-            distributions.append((two_distribution, turns_two))
+        if plus_one_distribution is not None and turns_one is not None:
+            distributions.append((plus_one_distribution, turns_one))
+        if plus_two_distribution is not None and turns_two is not None:
+            distributions.append((plus_two_distribution, turns_two))
         if one_two_distribution is not None and turns_one_two is not None:
             distributions.append((one_two_distribution, turns_one_two))
         return self.choose_best_distribution(distributions)
