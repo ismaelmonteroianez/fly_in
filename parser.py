@@ -1,6 +1,25 @@
 from typing import TypedDict
 
-
+VALID_COLORS = {
+    "black",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+    "orange",
+    "purple",
+    "brown",
+    "lime",
+    "gold",
+    "maroon",
+    "darkred",
+    "violet",
+    "crimson",
+    "rainbow",
+    }
 class HubMetadata(TypedDict):
     zone: str
     color: str
@@ -193,6 +212,9 @@ def parse_hub_metadata(metadata: str, index: int) -> HubMetadata:
                                            "or priority only")
             metadata_data["zone"] = value
         elif key == "color":
+            if value not in VALID_COLORS:
+                raise InvalidConfiguration(
+            f"Line {index}: Invalid color '{value}'")
             metadata_data["color"] = value
         elif key == "max_drones":
             check_positive_int(value)

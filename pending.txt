@@ -1,7 +1,6 @@
-los drones deben esperar un turno extra a que el dron llegue al hub cuando es restricted
-capar numero drones (revisar cuantos puedo meter): no puedo caparlo al parecer, debo encontrar una manera de que no se quede cargando infinitamente
-color aceptar solo palabras color ??
-poner color al output
-capar numero drones (revisar cuantos puedo meter)
+los drones deben esperar un turno extra a que el dron llegue al hub cuando es restricted ✅✅
+capado internamente el numero de drones: ahora acepto 1000000 ✅✅
+color aceptar solo palabras color ?? ✅✅
+poner color al output ✅✅
 readme
 practicar la flag

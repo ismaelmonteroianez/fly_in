@@ -5,6 +5,7 @@ from connection import Connection
 from simulation import Simulation
 from pathfinding import Pathfinding
 from parser import ConfigurationData
+from terminal_color import TerminalColor
 
 
 class DroneController:
@@ -24,6 +25,7 @@ class DroneController:
         """
         self.map = Map(configuration)
         self.pathfinding = Pathfinding(self.map)
+        self.terminal = TerminalColor()
         self.paths, self.minimum_cost = self.get_minimum_paths()
         temp = self.pathfinding.build_alternative_paths(self.minimum_cost)
         self.alternative_paths = temp
@@ -134,9 +136,11 @@ class DroneController:
             A formatted string describing the drone movement.
         """
         if next_hub.zone_type == "restricted":
-            return (f"D{drone.id}-{connection.source.name}-"
-                    f"{connection.destination.name}")
-        return f"D{drone.id}-{next_hub.name}"
+            output = (f"D{drone.id}-{connection.source.name}-"
+                  f"{connection.destination.name}")
+        else: 
+            output = f"D{drone.id}-{next_hub.name}"
+        return self.terminal.colorize(output, next_hub.color)
 
     def process_transit_drones(self) -> tuple[set[int], list[str]]:
         """
@@ -153,6 +157,7 @@ class DroneController:
         for drone in self.simulation.drones:
             if drone.connection is None:
                 continue
+            connection = drone.connection
             next_hub = drone.path[drone.path_index + 1]
             drone.set_hub(next_hub)
             drone.connection = None
@@ -160,7 +165,7 @@ class DroneController:
             if next_hub.is_end():
                 drone.finish()
             arrived_drones.add(drone.id)
-            output_moves.append(f"D{drone.id}-{next_hub.name}")
+            output_moves.append(self.get_move_output(drone, next_hub, connection))
         return arrived_drones, output_moves
 
     def register_move(self, drone: Drone, next_hub: Hub,
@@ -218,6 +223,11 @@ class DroneController:
         during the turn.
         """
         arrived_drones, output_moves = self.process_transit_drones()
+        hub_occupancy: dict[Hub, int] = {}
+        for drone in self.simulation.drones:
+            hub = drone.get_hub()
+            if hub is not None:
+                hub_occupancy[hub] = hub_occupancy.get(hub, 0) + 1
         moves: list[Drone] = []
         hub_moves: dict[Hub, int] = {}
         connection_occupancy: dict[Connection, int] = {}
@@ -233,18 +243,13 @@ class DroneController:
             connection = current_hub.get_connection_to(next_hub)
             if connection is None:
                 continue
-            hub_drones = self.simulation.count_hub_drones(next_hub)
+            hub_drones = hub_occupancy.get(next_hub, 0)
             connection_drones = connection_occupancy.get(connection, 0)
             hub_drones -= self.count_moves_from_hub(moves, next_hub)
             hub_drones += hub_moves.get(next_hub, 0)
-            if next_hub.zone_type == "restricted":
-                can_move = (self.can_enter_hub(next_hub, hub_drones)
-                and self.can_enter_connection(connection,
-                                               connection_drones))
-            else:
-                can_move = (self.can_enter_hub(next_hub, hub_drones)
-                            and self.can_enter_connection(connection,
-                                                          connection_drones))
+            can_move = (self.can_enter_hub(next_hub, hub_drones)
+            and self.can_enter_connection(connection,
+                                          connection_drones))
             if can_move:
                 self.register_move(drone, next_hub, connection,
                                    moves, hub_moves, connection_occupancy)
