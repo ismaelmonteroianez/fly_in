@@ -29,6 +29,8 @@ def main() -> None:
             print(f"File not found: {e}")
         except InvalidConfiguration as e:
             print(f"Invalid configuration: {e}")
+        except KeyboardInterrupt:
+            print("\nSimulation interrupted by user.")
     else:
         print("Error in arguments provided."
               " Usage: python3 fly_in.py <map.txt>")

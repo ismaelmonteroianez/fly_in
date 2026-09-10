@@ -1,25 +1,27 @@
 from typing import TypedDict
+from enum import Enum
 
-VALID_COLORS = {
-    "black",
-    "red",
-    "green",
-    "yellow",
-    "blue",
-    "magenta",
-    "cyan",
-    "white",
-    "orange",
-    "purple",
-    "brown",
-    "lime",
-    "gold",
-    "maroon",
-    "darkred",
-    "violet",
-    "crimson",
-    "rainbow",
-    }
+class ValidColors(Enum):
+    BLACK = "black",
+    RED = "red",
+    GREEN = "green",
+    YELLOW = "yellow",
+    BLUE = "blue",
+    MAGENTA = "magenta",
+    CYAN = "cyan",
+    WHITE = "white",
+    ORANGE = "orange",
+    PURPLE = "purple",
+    BROWN = "brown",
+    LIME = "lime",
+    GOLD = "gold",
+    MAROON = "maroon",
+    DARKRED = "darkred",
+    VIOLET = "violet",
+    CRIMSON = "crimson",
+    RAINBOW = "rainbow",
+
+
 class HubMetadata(TypedDict):
     zone: str
     color: str
@@ -212,7 +214,7 @@ def parse_hub_metadata(metadata: str, index: int) -> HubMetadata:
                                            "or priority only")
             metadata_data["zone"] = value
         elif key == "color":
-            if value not in VALID_COLORS:
+            if value.upper() not in ValidColors.__members__:
                 raise InvalidConfiguration(
             f"Line {index}: Invalid color '{value}'")
             metadata_data["color"] = value
