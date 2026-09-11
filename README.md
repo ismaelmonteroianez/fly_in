@@ -192,4 +192,4 @@ The terminal output is also the project's visual representation. Each movement i
 
 ### AI usage
 
-AI was used to review the subject and the existing implementation, and to draft this README. No application source code or routing algorithm was generated or modified by AI.
+AI was used to review the subject and the existing implementation, and to help reviewing this README. No application source code or routing algorithm was generated or modified by AI.
