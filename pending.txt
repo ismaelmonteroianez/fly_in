@@ -15,6 +15,21 @@ start_hub: start 0 0 [color=blue]
 end_hub: goal 4 0 [color=red]
 
 
+FLAG: ✅✅✅✅
+    def print_capacity_info(self) -> None:
+        for hub in self.map.hubs.values():
+            drones = self.get_drones_in_hub(hub)
+            current = len(drones)
+            if hub.is_start() or hub.is_end():
+                print(f"Zone {hub.name}: {current}/unlimited drones")
+            else:
+                print(f"Zone {hub.name}: {current}/{hub.max_drones} drones")
+        for connection in self.map.connections:
+            drones = self.get_drones_in_connection(connection)
+            current = len(drones)
+            print(f"Connection {connection.source.name}-{connection.destination.name}: {current}/{connection.max_link_capacity} capacity used")
+
+
 ESTO ENTRA Y NO DEBERIA, DEBE IR HUB-HUB JUNTO ✅✅✅✅
 connection: loop_a - loop_b [max_link_capacity=2]
 
@@ -24,5 +39,3 @@ NO PUEDO USAR COLOR CONSTANT ✅✅??
 
 readme ✅✅✅✅
 
-
-practicar la flag

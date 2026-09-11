@@ -33,6 +33,7 @@ class DroneController:
                                      self.alternative_paths, self.minimum_cost)
         self.paths_assigned = self.simulation.assign_paths()
         self.current_turn = 1
+        self.drones = self.simulation.drones
         self.assign_paths_to_drones()
 
     def get_minimum_paths(self) -> tuple[list[list[Hub]], int]:
@@ -262,14 +263,40 @@ class DroneController:
         self.execute_moves(moves)
         print(" ".join(output_moves))
 
+    def get_drones_in_connection(self, connection: Connection) -> list[Drone]:
+        """
+        Get the drones currently in a connection.
+        Args:
+            connection: Connection whose drones should be retrieved.
+        Returns:
+            A list of drones currently using the connection.
+        """
+        drones = []
+        for drone in self.drones:
+            if drone.connection == connection:
+                drones.append(drone)
+        return drones
+
+    def get_drones_in_hub(self, hub: Hub) -> list[Drone]:
+        """
+        Get the drones currently occupying a hub.
+        Args:
+            hub: Hub whose drones should be retrieved.
+        Returns:
+            A list of drones currently located in the hub and not in transit.
+        """
+        drones = []
+        for drone in self.drones:
+            if drone.get_hub() == hub and drone.connection is None:
+                drones.append(drone)
+        return drones
+
     def run(self) -> None:
         """
         Run the simulation until all drones reach the end hub.
         Each simulation turn is processed sequentially until every drone
         has been marked as finished.
         """
-        print("REAL OUTPUT:")
-        print()
         while not self.all_drones_finished():
             self.process_turn()
             self.current_turn += 1

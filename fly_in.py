@@ -13,29 +13,30 @@ def main() -> None:
     """
     if len(sys.argv) == 2:
         file_path = sys.argv[1]
-        if not file_path.lower().endswith(".txt"):
-            print("Invalid file type: expected a .txt file")
-            return
-        if not os.path.isfile(file_path):
-            print(f"No such file or directory: {file_path}")
-            return
-        try:
-            configuration = parser(file_path)
-            drone_controller = DroneController(configuration)
-            drone_controller.run()
-        except EmptyFile as e:
-            print(e)
-        except FileNotFoundError as e:
-            print(f"File not found: {e}")
-        except InvalidConfiguration as e:
-            print(f"Invalid configuration: {e}")
-        except KeyboardInterrupt:
-            print("\nSimulation interrupted by user.")
-        except PermissionError as e:
-            print("Permission denied: unable to read the configuration file")
     else:
         print("Error in arguments provided."
               " Usage: python3 fly_in.py <map.txt>")
+        return
+    if not file_path.lower().endswith(".txt"):
+        print("Invalid file type: expected a .txt file")
+        return
+    if not os.path.isfile(file_path):
+        print(f"No such file or directory: {file_path}")
+        return
+    try:
+        configuration = parser(file_path)
+        drone_controller = DroneController(configuration)
+        drone_controller.run()
+    except EmptyFile as e:
+        print(e)
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+    except InvalidConfiguration as e:
+        print(f"Invalid configuration: {e}")
+    except KeyboardInterrupt:
+        print("\nSimulation interrupted by user.")
+    except PermissionError:
+        print("Permission denied: unable to read the configuration file")
 
 
 if __name__ == "__main__":
