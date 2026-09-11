@@ -4,7 +4,7 @@ from map import Map
 from connection import Connection
 from simulation import Simulation
 from pathfinding import Pathfinding
-from parser import ConfigurationData
+from parser import ConfigurationData,  InvalidConfiguration
 from terminal_color import TerminalColor
 
 
@@ -53,6 +53,8 @@ class DroneController:
         end_hub = self.map.get_end_hub()
         if end_hub is None:
             raise ValueError("No end hub found")
+        if costs[end_hub.name] == float("inf"):
+            raise InvalidConfiguration("No valid path between start and end hubs")
         minimum_cost = int(costs[end_hub.name])
         return paths, minimum_cost
 
@@ -165,7 +167,7 @@ class DroneController:
             if next_hub.is_end():
                 drone.finish()
             arrived_drones.add(drone.id)
-            output_moves.append(self.get_move_output(drone, next_hub, connection))
+            output_moves.append(self.terminal.colorize(f"D{drone.id}-{next_hub.name}", next_hub.color))
         return arrived_drones, output_moves
 
     def register_move(self, drone: Drone, next_hub: Hub,

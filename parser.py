@@ -328,12 +328,15 @@ def parse_connection(connection: str, index: int) -> ConnectionData:
     if len(main_parts) != 2:
         raise InvalidConfiguration(f"Line {index}: Invalid connection format")
     _, connection_content = main_parts
+    connection_content = connection_content.strip()
     connection_parts = connection_content.split("-")
     if len(connection_parts) != 2:
         raise InvalidConfiguration(f"Line {index}: Invalid connection format")
-    zone1 = connection_parts[0].strip()
-    zone2 = connection_parts[1].strip()
+    zone1 = connection_parts[0]
+    zone2 = connection_parts[1]
     if zone1 == "" or zone2 == "":
+        raise InvalidConfiguration(f"Line {index}: Invalid connection format")
+    if " " in zone1 or " " in zone2:
         raise InvalidConfiguration(f"Line {index}: Invalid connection format")
     if zone1 == zone2:
         raise InvalidConfiguration(f"Line {index}: "

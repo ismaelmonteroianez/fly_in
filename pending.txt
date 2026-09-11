@@ -3,57 +3,19 @@ capado internamente el numero de drones: ahora acepto 1000000 ✅✅
 color aceptar solo palabras color ?? ✅✅
 poner color al output ✅✅
 
-EL OUTPUT REAL NO SALE COMO DEBERIA SALE RARO, EJEMPLO:
-
-OUTPUT MINIMO:
-
-D1-loop_a D2-loop_a
-D1-loop_b D2-loop_b D3-loop_a D4-loop_a
-D1-loop_b-exit_point D3-loop_b D5-loop_a
-D1-exit_point
-D1-goal D2-loop_b-exit_point D4-loop_b D6-loop_a
-D2-exit_point
-D2-goal D3-loop_b-exit_point D5-loop_b
-D3-exit_point
-D3-goal D4-loop_b-exit_point D6-loop_b
-D4-exit_point
-D4-goal D5-loop_b-exit_point
-D5-exit_point
-D5-goal D6-loop_b-exit_point
-D6-exit_point
-D6-goal
-
-REAL OUTPUT:
-
-D1-loop_a D2-loop_a
-D1-loop_b D2-loop_b D3-loop_a D4-loop_a
-D1-loop_b-exit_point D3-loop_b D5-loop_a
-D1-loop_b-exit_point
-D1-goal D2-loop_b-exit_point D4-loop_b D6-loop_a
-D2-loop_b-exit_point
-D2-goal D3-loop_b-exit_point D5-loop_b
-D3-loop_b-exit_point
-D3-goal D4-loop_b-exit_point D6-loop_b
-D4-loop_b-exit_point
-D4-goal D5-loop_b-exit_point
-D5-loop_b-exit_point
-D5-goal D6-loop_b-exit_point
-D6-loop_b-exit_point
-D6-goal
+EL OUTPUT REAL NO SALE COMO DEBERIA SALE RARO PARA LAS CONEXIONES ✅✅✅✅
 
 
 SI interrumpen los 100000000 drones porque tarda mucho, recoger el error KEYBOARDINTERRUMP ✅✅✅✅
 
-ESTO DA ERROR, NO HAY CONEXION QUE LOS UNA, TRACEBACK:
+ESTO DA ERROR, NO HAY CONEXION QUE LOS UNA, TRACEBACK ✅✅✅✅
 # Medium Level 2: Circular loop with restricted zones
 nb_drones: 6
-
-
 start_hub: start 0 0 [color=blue]
 end_hub: goal 4 0 [color=red]
 
 
-ESTO ENTRA Y NO DEBERIA, DEBE IR HUB-HUB JUNTO
+ESTO ENTRA Y NO DEBERIA, DEBE IR HUB-HUB JUNTO ✅✅✅✅
 connection: loop_a - loop_b [max_link_capacity=2]
 
 
