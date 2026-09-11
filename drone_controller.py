@@ -54,7 +54,8 @@ class DroneController:
         if end_hub is None:
             raise ValueError("No end hub found")
         if costs[end_hub.name] == float("inf"):
-            raise InvalidConfiguration("No valid path between start and end hubs")
+            raise InvalidConfiguration("No valid path between "
+                                       "start and end hubs")
         minimum_cost = int(costs[end_hub.name])
         return paths, minimum_cost
 
@@ -139,8 +140,8 @@ class DroneController:
         """
         if next_hub.zone_type == "restricted":
             output = (f"D{drone.id}-{connection.source.name}-"
-                  f"{connection.destination.name}")
-        else: 
+                      f"{connection.destination.name}")
+        else:
             output = f"D{drone.id}-{next_hub.name}"
         return self.terminal.colorize(output, next_hub.color)
 
@@ -159,7 +160,6 @@ class DroneController:
         for drone in self.simulation.drones:
             if drone.connection is None:
                 continue
-            connection = drone.connection
             next_hub = drone.path[drone.path_index + 1]
             drone.set_hub(next_hub)
             drone.connection = None
@@ -167,7 +167,9 @@ class DroneController:
             if next_hub.is_end():
                 drone.finish()
             arrived_drones.add(drone.id)
-            output_moves.append(self.terminal.colorize(f"D{drone.id}-{next_hub.name}", next_hub.color))
+            output_moves.append(self.terminal.colorize(
+                               f"D{drone.id}-{next_hub.name}",
+                               next_hub.color))
         return arrived_drones, output_moves
 
     def register_move(self, drone: Drone, next_hub: Hub,
@@ -250,8 +252,8 @@ class DroneController:
             hub_drones -= self.count_moves_from_hub(moves, next_hub)
             hub_drones += hub_moves.get(next_hub, 0)
             can_move = (self.can_enter_hub(next_hub, hub_drones)
-            and self.can_enter_connection(connection,
-                                          connection_drones))
+                        and self.can_enter_connection(connection,
+                        connection_drones))
             if can_move:
                 self.register_move(drone, next_hub, connection,
                                    moves, hub_moves, connection_occupancy)

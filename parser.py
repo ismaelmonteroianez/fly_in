@@ -1,6 +1,7 @@
 from typing import TypedDict
 from enum import Enum
 
+
 class ValidColors(Enum):
     BLACK = "black",
     RED = "red",
@@ -215,8 +216,8 @@ def parse_hub_metadata(metadata: str, index: int) -> HubMetadata:
             metadata_data["zone"] = value
         elif key == "color":
             if value.upper() not in ValidColors.__members__:
-                raise InvalidConfiguration(
-            f"Line {index}: Invalid color '{value}'")
+                raise InvalidConfiguration(f"Line {index}: "
+                                           f"Invalid color '{value}'")
             metadata_data["color"] = value
         elif key == "max_drones":
             check_positive_int(value)

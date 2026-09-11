@@ -31,6 +31,8 @@ def main() -> None:
             print(f"Invalid configuration: {e}")
         except KeyboardInterrupt:
             print("\nSimulation interrupted by user.")
+        except PermissionError as e:
+            print("Permission denied: unable to read the configuration file")
     else:
         print("Error in arguments provided."
               " Usage: python3 fly_in.py <map.txt>")
