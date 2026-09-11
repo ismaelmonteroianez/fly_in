@@ -20,22 +20,9 @@ connection: loop_a - loop_b [max_link_capacity=2]
 
 
 NO PUEDO USAR COLOR CONSTANT ✅✅??
-"yellow",
-    "blue",
-    "magenta",
-    "cyan",
-    "white",
-    "orange",
-    "purple",
-    "brown",
-    "lime",
-    "gold",
-    "maroon",
-    "darkred",
-    "violet",
-    "crimson",
-    "rainbow",
 
 
-readme
+readme ✅✅✅✅
+
+
 practicar la flag
