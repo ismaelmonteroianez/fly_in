@@ -124,8 +124,6 @@ python3 fly_in.py maps/easy/01_linear_path.txt
 The output below was produced by the implementation. ANSI escape codes are removed only to keep this README readable:
 
 ```text
-REAL OUTPUT:
-
 D1-waypoint1
 D1-waypoint2 D2-waypoint1
 D1-goal D2-waypoint2
