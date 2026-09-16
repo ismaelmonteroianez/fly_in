@@ -1,6 +1,6 @@
 NAME = fly_in.py
 PYTHON = python3
-PIP = pip
+PIP = $(PYTHON) -m pip
 
 .PHONY: install run debug clean lint lint-strict
 
@@ -14,12 +14,14 @@ debug:
 	$(PYTHON) -m pdb $(NAME) $(MAP)
 
 clean:
-	$(PYTHON) -c "import shutil; shutil.rmtree('__pycache__', ignore_errors=True); shutil.rmtree('.mypy_cache', ignore_errors=True)"
+	rm -rf __pycache__/
+	rm -rf .mypy_cache/
+	rm -rf .pytest_cache/
 
 lint:
-	flake8 .
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	$(PYTHON) -m flake8 .
+	$(PYTHON) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
-	flake8 .
-	mypy . --strict
+	$(PYTHON) -m flake8 .
+	$(PYTHON) -m mypy . --strict
