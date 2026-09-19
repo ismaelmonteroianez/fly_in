@@ -37,7 +37,8 @@ def main() -> None:
         print("\nSimulation interrupted by user.")
     except PermissionError:
         print("Permission denied: unable to read the configuration file")
-
+    except UnicodeDecodeError:
+        print("Invalid file encoding: unable to read the configuration file")
 
 if __name__ == "__main__":
     main()

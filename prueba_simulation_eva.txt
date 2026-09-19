@@ -1,0 +1,34 @@
+nb_drones: 100
+start_hub: hub 0 5 [color=green]
+end_hub: goal 10 5 [color=yellow]
+
+hub: min1 2 5 [zone=normal color=blue]
+hub: min2 4 5 [zone=normal color=blue]
+hub: min3 6 5 [zone=normal color=blue]
+
+hub: alt1 2 2 [zone=normal color=green max_drones=2]
+hub: alt2 4 2 [zone=normal color=green max_drones=2]
+hub: alt3 6 2 [zone=normal color=green max_drones=2]
+hub: alt4 8 5 [zone=normal color=green max_drones=2]
+
+hub: alt21 2 8 [zone=normal color=red max_drones=3]
+hub: alt22 4 8 [zone=normal color=red max_drones=3]
+hub: alt23 6 8 [zone=normal color=red max_drones=3]
+hub: alt24 8 8 [zone=normal color=red max_drones=3]
+
+connection: hub-min1
+connection: min1-min2 [max_link_capacity=1]
+connection: min2-min3
+connection: min3-goal
+
+connection: hub-alt1 [max_link_capacity=2]
+connection: alt1-alt2 [max_link_capacity=2]
+connection: alt2-alt3 [max_link_capacity=2]
+connection: alt3-alt4 [max_link_capacity=2]
+connection: alt4-goal [max_link_capacity=2]
+
+connection: hub-alt21 [max_link_capacity=3]
+connection: alt21-alt22 [max_link_capacity=3]
+connection: alt22-alt23 [max_link_capacity=3]
+connection: alt23-alt24 [max_link_capacity=3]
+connection: alt24-goal [max_link_capacity=3]
