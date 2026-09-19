@@ -119,7 +119,7 @@ class Simulation():
         while finished_count < len(self.drones):
             moves: list[Drone] = []
             turns += 1
-            connection_occupancy: dict[Connection, int] = {}
+            connection_moves: dict[Connection, int] = {}
             hub_moves: dict[Hub, int] = {}
             arrived_from_transit = set()
             for drone in self.drones:
@@ -152,7 +152,7 @@ class Simulation():
                 if connection is None:
                     continue
                 hub_drones = hub_occupancy.get(next_hub, 0)
-                connection_drones = connection_occupancy.get(connection, 0)
+                connection_drones = connection_moves.get(connection, 0)
                 hub_drones -= self.count_moves_from_hub(
                               moves, next_hub, paths_assigned, positions)
                 hub_drones += hub_moves.get(next_hub, 0)
@@ -161,8 +161,8 @@ class Simulation():
                             connection_drones))
                 if can_move:
                     moves.append(drone)
-                    connection_occupancy[connection] = (
-                        connection_occupancy.get(connection, 0) + 1)
+                    connection_moves[connection] = (
+                        connection_moves.get(connection, 0) + 1)
                     if next_hub.zone_type == "restricted":
                         transit[drone.id] = connection
                     hub_moves[next_hub] = hub_moves.get(next_hub, 0) + 1
