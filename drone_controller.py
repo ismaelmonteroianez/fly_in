@@ -235,7 +235,7 @@ class DroneController:
                 hub_occupancy[hub] = hub_occupancy.get(hub, 0) + 1
         moves: list[Drone] = []
         hub_moves: dict[Hub, int] = {}
-        connection_occupancy: dict[Connection, int] = {}
+        connection_moves: dict[Connection, int] = {}
         for drone in self.simulation.drones:
             if drone.id in arrived_drones:
                 continue
@@ -249,15 +249,15 @@ class DroneController:
             if connection is None:
                 continue
             hub_drones = hub_occupancy.get(next_hub, 0)
-            connection_drones = connection_occupancy.get(connection, 0)
+            connection_move_count = connection_moves.get(connection, 0)
             hub_drones -= self.count_moves_from_hub(moves, next_hub)
             hub_drones += hub_moves.get(next_hub, 0)
             can_move = (self.can_enter_hub(next_hub, hub_drones)
                         and self.can_enter_connection(connection,
-                        connection_drones))
+                        connection_move_count))
             if can_move:
                 self.register_move(drone, next_hub, connection,
-                                   moves, hub_moves, connection_occupancy)
+                                   moves, hub_moves, connection_moves)
                 output_moves.append(self.get_move_output(drone,
                                                          next_hub, connection))
         self.execute_moves(moves)
