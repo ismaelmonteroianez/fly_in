@@ -40,5 +40,6 @@ def main() -> None:
     except UnicodeDecodeError:
         print("Invalid file encoding: unable to read the configuration file")
 
+
 if __name__ == "__main__":
     main()
